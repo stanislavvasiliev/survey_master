@@ -20,6 +20,7 @@ class EditorScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Редактор опитувань'),
         actions: [
+
           IconButton(
             icon: const Icon(Icons.save_outlined),
             onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
