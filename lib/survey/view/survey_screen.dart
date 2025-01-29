@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../view_model/survey_provider.dart';
 import '../view/widgets/survey_list_widget.dart';
-
 class SurveyScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -13,7 +12,7 @@ class SurveyScreen extends ConsumerWidget {
         title: const Text('Проходження опитувань'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_calendar),
+            icon: const Icon(Icons.edit_outlined),
             onPressed: () => Navigator.pushNamed(context, '/editor'),
             tooltip: 'Редагувати опитування',
           ),
