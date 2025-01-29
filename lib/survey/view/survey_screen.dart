@@ -12,7 +12,6 @@ class SurveyScreen extends ConsumerWidget {
         title: const Text('Проходження опитувань'),
         actions: [
           IconButton(
-
             icon: const Icon(Icons.edit_outlined),
             onPressed: () => Navigator.pushNamed(context, '/editor'),
             tooltip: 'Редагувати опитування',
