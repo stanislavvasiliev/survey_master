@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../view_model/survey_provider.dart';
 import '../view/widgets/survey_list_widget.dart';
-import 'dart:html' as html;
-import '../models/survey_model.dart';
+import '../view/widgets/survey_action_buttons.dart';
 
 class SurveyScreen extends ConsumerWidget {
   @override
@@ -15,71 +14,9 @@ class SurveyScreen extends ConsumerWidget {
         title: const Text('Проходження опитувань'),
         automaticallyImplyLeading: false,
         actions: [
-          Container(
-            padding: const EdgeInsets.all(5),
-            child: Row(
-              mainAxisSize:
-                  MainAxisSize.min, // Prevents Row from taking full width
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    final newSurvey = Survey(
-                      id: DateTime.now().millisecondsSinceEpoch.toString(),
-                      title: 'Нове опитування',
-                      description: 'Додайте опис опитування',
-                      questions: [
-                        Question(
-                          id: 'q1',
-                          text: 'Чи було стоврення опитувальника успішним?',
-                          type: QuestionType.text,
-                        ),
-                      ],
-                    );
-
-                    ref.read(surveyListProvider.notifier).addSurvey(newSurvey);
-                    ref.read(selectedSurveyProvider.notifier).state = newSurvey;
-
-                    Navigator.pushNamed(context, '/editor');
-                  },
-                  icon: const Icon(Icons.add),
-                  label: const Text('Створити опитування'),
-                ),
-                const SizedBox(width: 8), // Adds spacing between buttons
-                OutlinedButton.icon(
-                  onPressed: selectedSurvey == null
-                      ? null
-                      : () {
-                          Navigator.pushNamed(context, '/editor');
-                        },
-                  icon: const Icon(Icons.edit),
-                  label: const Text('Редагувати опитування'),
-                ),
-                const SizedBox(width: 8),
-                OutlinedButton.icon(
-                  onPressed: selectedSurvey == null
-                      ? null
-                      : () {
-                          bool confirmDelete = html.window.confirm(
-                              "Ви впевнені, що хочете видалити це опитування?");
-                          if (confirmDelete) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text('Опитування видалено'),
-                                  duration: Duration(seconds: 1)),
-                            );
-
-                            ref
-                                .read(surveyListProvider.notifier)
-                                .deleteSurvey(selectedSurvey.id);
-                            ref.read(selectedSurveyProvider.notifier).state =
-                                null;
-                          }
-                        },
-                  icon: const Icon(Icons.delete_forever),
-                  label: const Text('Видалити опитування'),
-                ),
-              ],
-            ),
+          const Padding(
+            padding: EdgeInsets.all(5),
+            child: SurveyActionButtons(),
           ),
         ],
       ),
