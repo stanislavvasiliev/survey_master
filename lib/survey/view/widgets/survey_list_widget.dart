@@ -10,21 +10,27 @@ class SurveyListWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final surveys = ref.watch(surveyListProvider);
+    final selectedSurvey = ref.watch(selectedSurveyProvider);
 
-    return surveys.when(
-      data: (data) => ListView.builder(
-        itemCount: data.length,
-        itemBuilder: (context, index) {
-          final survey = data[index];
-          return ListTile(
-            title: Text(survey.title),
-            subtitle: Text(survey.description),
-            onTap: () => onSelectSurvey(survey.id),
-          );
-        },
-      ),
-      loading: () => Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Ошибка загрузки данных')),
+    if (surveys.isEmpty) {
+      return const Center(child: Text('Немає доступних опитувань.'));
+    }
+
+    return ListView.builder(
+      itemCount: surveys.length,
+      itemBuilder: (context, index) {
+        final survey = surveys[index];
+        final isSelected = selectedSurvey?.id == survey.id;
+
+        return ListTile(
+          title: Text(survey.title),
+          subtitle: Text(survey.description,
+              maxLines: 1, overflow: TextOverflow.ellipsis),
+          selected: isSelected,
+          selectedTileColor: Colors.blue.withOpacity(0.2),
+          onTap: () => onSelectSurvey(survey.id),
+        );
+      },
     );
   }
 }
