@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../view_model/survey_provider.dart';
 import '../view/widgets/survey_list_widget.dart';
 import 'dart:html' as html;
+import '../models/survey_model.dart';
 
 class SurveyScreen extends ConsumerWidget {
   @override
@@ -12,6 +13,7 @@ class SurveyScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Проходження опитувань'),
+        automaticallyImplyLeading: false,
         actions: [
           Container(
             padding: const EdgeInsets.all(5),
@@ -20,7 +22,25 @@ class SurveyScreen extends ConsumerWidget {
                   MainAxisSize.min, // Prevents Row from taking full width
               children: [
                 ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    final newSurvey = Survey(
+                      id: DateTime.now().millisecondsSinceEpoch.toString(),
+                      title: 'Нове опитування',
+                      description: 'Додайте опис опитування',
+                      questions: [
+                        Question(
+                          id: 'q1',
+                          text: 'Чи було стоврення опитувальника успішним?',
+                          type: QuestionType.text,
+                        ),
+                      ],
+                    );
+
+                    ref.read(surveyListProvider.notifier).addSurvey(newSurvey);
+                    ref.read(selectedSurveyProvider.notifier).state = newSurvey;
+
+                    Navigator.pushNamed(context, '/editor');
+                  },
                   icon: const Icon(Icons.add),
                   label: const Text('Створити опитування'),
                 ),
@@ -42,6 +62,12 @@ class SurveyScreen extends ConsumerWidget {
                           bool confirmDelete = html.window.confirm(
                               "Ви впевнені, що хочете видалити це опитування?");
                           if (confirmDelete) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text('Опитування видалено'),
+                                  duration: Duration(seconds: 1)),
+                            );
+
                             ref
                                 .read(surveyListProvider.notifier)
                                 .deleteSurvey(selectedSurvey.id);

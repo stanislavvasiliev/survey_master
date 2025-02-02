@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../view_model/survey_provider.dart';
 import '../view/widgets/survey_list_widget.dart';
+import '../models/survey_model.dart';
 
 class EditorScreen extends ConsumerWidget {
   @override
@@ -19,11 +20,31 @@ class EditorScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Редактор опитувань'),
         actions: [
-          IconButton(
+          ElevatedButton.icon(
+            onPressed: () {
+              if (selectedSurvey != null) {
+                final updatedSurvey = Survey(
+                  id: selectedSurvey.id,
+                  title: _titleController.text,
+                  description: _descController.text,
+                  questions: selectedSurvey
+                      .questions, // Keep the same questions for now
+                );
+
+                ref
+                    .read(surveyListProvider.notifier)
+                    .updateSurvey(updatedSurvey);
+                ref.read(selectedSurveyProvider.notifier).state = updatedSurvey;
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content: Text('Зміни збережено'),
+                      duration: Duration(seconds: 1)),
+                );
+              }
+            },
             icon: const Icon(Icons.save_outlined),
-            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Зміни збережено (демо)')),
-            ),
+            label: Text('Зберегти зміни'),
           ),
         ],
       ),

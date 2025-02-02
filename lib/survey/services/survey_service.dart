@@ -90,30 +90,3 @@ class SurveyService {
     _surveys.removeWhere((survey) => survey.id == id);
   }
 }
-
-
-
-
-// This code defines a survey management service in Flutter:
-
-// surveyServiceProvider: A Riverpod provider that creates a SurveyService instance
-// SurveyService class:
-
-
-// Contains getSurveys() method that returns mock survey data
-// Includes 1-second delay to simulate network request
-// Returns 3 predefined surveys:
-
-// App satisfaction survey (3 questions: usage frequency, interface rating, favorite features)
-// User habits survey (2 questions: daily usage time, reduction suggestions)
-// Technical support survey (2 questions: app crashes, problem description)
-
-
-
-// Each survey contains:
-
-// Unique ID
-// Title and description
-// List of questions with different types (single choice, multiple choice, scale, text)
-
-// This service provides mock data for development/testing of the survey functionality.
