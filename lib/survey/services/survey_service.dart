@@ -4,13 +4,9 @@ import '../models/survey_model.dart';
 final surveyServiceProvider = Provider<SurveyService>((ref) => SurveyService());
 
 class SurveyService {
-  List<Survey> _surveys = [];
-  SurveyService() {
-    _initializeSurveys();
-  }
-
-  void _initializeSurveys() {
-    _surveys = [
+  Future<List<Survey>> getSurveys() async {
+    await Future.delayed(const Duration(seconds: 1)); // Імітація затримки
+    return [
       // Опитування 1 - Задоволеність додатком
       Survey(
         id: '1',
@@ -80,40 +76,4 @@ class SurveyService {
       ),
     ];
   }
-
-  Future<List<Survey>> getSurveys() async {
-    await Future.delayed(const Duration(seconds: 1)); // Імітація затримки
-    return _surveys;
-  }
-
-  Future<void> deleteSurvey(String id) async {
-    _surveys.removeWhere((survey) => survey.id == id);
-  }
 }
-
-
-
-
-// This code defines a survey management service in Flutter:
-
-// surveyServiceProvider: A Riverpod provider that creates a SurveyService instance
-// SurveyService class:
-
-
-// Contains getSurveys() method that returns mock survey data
-// Includes 1-second delay to simulate network request
-// Returns 3 predefined surveys:
-
-// App satisfaction survey (3 questions: usage frequency, interface rating, favorite features)
-// User habits survey (2 questions: daily usage time, reduction suggestions)
-// Technical support survey (2 questions: app crashes, problem description)
-
-
-
-// Each survey contains:
-
-// Unique ID
-// Title and description
-// List of questions with different types (single choice, multiple choice, scale, text)
-
-// This service provides mock data for development/testing of the survey functionality.
