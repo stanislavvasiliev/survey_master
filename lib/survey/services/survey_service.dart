@@ -4,9 +4,13 @@ import '../models/survey_model.dart';
 final surveyServiceProvider = Provider<SurveyService>((ref) => SurveyService());
 
 class SurveyService {
-  Future<List<Survey>> getSurveys() async {
-    await Future.delayed(const Duration(seconds: 1)); // Імітація затримки
-    return [
+  List<Survey> _surveys = [];
+  SurveyService() {
+    _initializeSurveys();
+  }
+
+  void _initializeSurveys() {
+    _surveys = [
       // Опитування 1 - Задоволеність додатком
       Survey(
         id: '1',
@@ -75,5 +79,14 @@ class SurveyService {
         ],
       ),
     ];
+  }
+
+  Future<List<Survey>> getSurveys() async {
+    await Future.delayed(const Duration(seconds: 1)); // Імітація затримки
+    return _surveys;
+  }
+
+  Future<void> deleteSurvey(String id) async {
+    _surveys.removeWhere((survey) => survey.id == id);
   }
 }
