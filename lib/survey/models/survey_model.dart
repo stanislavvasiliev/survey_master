@@ -4,6 +4,8 @@ enum QuestionType {
   singleChoice,// Питання з одним варіантом відповіді
   multipleChoice, // Питання з кількома варіантами відповідей
   scale,       // Шкала (наприклад, від 1 до 5)
+  dropdown,
+  numeric,
 }
 
 // Модель питання
