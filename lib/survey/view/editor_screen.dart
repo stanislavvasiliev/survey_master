@@ -20,6 +20,12 @@ class EditorScreen extends ConsumerWidget {
     if (selectedSurvey != null) {
       _titleController.text = selectedSurvey.title;
       _descController.text = selectedSurvey.description;
+      _startDateController.text =
+          selectedSurvey.startDate?.toIso8601String() ?? '';
+      _endDateController.text = selectedSurvey.endDate?.toIso8601String() ?? '';
+      _facultyController.text = selectedSurvey.faculty.join(', ');
+      _courseController.text = selectedSurvey.course.join(', ');
+      _groupController.text = selectedSurvey.group.join(', ');
     }
 
     return Scaffold(
@@ -45,14 +51,17 @@ class EditorScreen extends ConsumerWidget {
                         .map(int.parse)
                         .toList(), // Перетворюємо в List<int>
                     group: _groupController.text
-                        .split(','), // Розбиваємо рядок на список
+                        .split(',')
+                        .map((e) => e.trim())
+                        .toList(), // Розбиваємо рядок на список
                   );
 
                   ref
                       .read(surveyListProvider.notifier)
                       .updateSurvey(updatedSurvey);
-                  ref.read(selectedSurveyProvider.notifier).state =
-                      updatedSurvey;
+                  ref
+                      .read(selectedSurveyProvider.notifier)
+                      .update((_) => updatedSurvey);
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

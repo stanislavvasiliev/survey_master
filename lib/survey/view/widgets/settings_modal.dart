@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../view_model/survey_provider.dart';
 import 'package:intl/intl.dart';
-import './settings_modal.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import '../../services/date_formatter.dart';
 
 class ShowModalSettings extends ConsumerStatefulWidget {
   @override
@@ -23,11 +24,10 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
       _startDate = selectedSurvey.startDate;
       _endDate = selectedSurvey.endDate;
 
-      _startDateController.text = _startDate != null
-          ? _startDate!.toLocal().toString().split(' ')[0]
-          : '';
+      _startDateController.text =
+          _startDate != null ? customFormatDate(_startDate!) : '';
       _endDateController.text =
-          _endDate != null ? _endDate!.toLocal().toString().split(' ')[0] : '';
+          _endDate != null ? customFormatDate(_endDate!) : '';
     }
   }
 
@@ -50,7 +50,6 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
           _startDate = pickedDate;
           _startDateController.text = DateFormat.yMMMd().format(pickedDate);
 
-          // Ensure end date is not before start date
           if (_endDate != null && _endDate!.isBefore(_startDate!)) {
             _endDate = _startDate;
             _endDateController.text = _startDateController.text;
@@ -67,10 +66,22 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
 
   void _saveDates() {
     final selectedSurvey = ref.read(selectedSurveyProvider);
-    if (selectedSurvey != null) {
+    if (selectedSurvey == null) return;
+
+    // Track changes before updating
+    bool hasChanges = false;
+    DateTime? newStartDate = _startDate;
+    DateTime? newEndDate = _endDate;
+
+    if (newStartDate != selectedSurvey.startDate ||
+        newEndDate != selectedSurvey.endDate) {
+      hasChanges = true;
+    }
+
+    if (hasChanges) {
       final updatedSurvey = selectedSurvey.copyWith(
-        startDate: _startDate,
-        endDate: _endDate,
+        startDate: newStartDate,
+        endDate: newEndDate,
       );
 
       ref.read(surveyListProvider.notifier).updateSurvey(updatedSurvey);
@@ -94,51 +105,99 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
             SizedBox(height: 10),
             Text("Виберіть дати для опитування"),
 
-            // Дата початку
+            // Layout with Row, date fields on the left and dropdowns on the right
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                SizedBox(
-                  width: 200,
-                  child: TextField(
-                    controller: _startDateController,
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      labelText: "Дата початку",
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.calendar_today),
-                  onPressed: () => _pickDate(context, true),
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
+                Expanded(
+                  child: Column(
+                    children: [
+                      // Start Date
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 200,
+                            child: TextField(
+                              controller: _startDateController,
+                              readOnly: true,
+                              decoration: InputDecoration(
+                                labelText: "Дата початку",
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.calendar_today),
+                            onPressed: () => _pickDate(context, true),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10),
 
-            // Дата завершення
-            Row(
-              children: [
-                SizedBox(
-                  width: 200,
-                  child: TextField(
-                    controller: _endDateController,
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      labelText: "Дата завершення",
-                      border: OutlineInputBorder(),
-                    ),
+                      // End Date
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 200,
+                            child: TextField(
+                              controller: _endDateController,
+                              readOnly: true,
+                              decoration: InputDecoration(
+                                labelText: "Дата завершення",
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.calendar_today),
+                            onPressed: () => _pickDate(context, false),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.calendar_today),
-                  onPressed: () => _pickDate(context, false),
+                SizedBox(width: 20), // Space between date fields and dropdowns
+                Expanded(
+                  child: Column(
+                    children: [
+                      // First Dropdown
+                      FormBuilderDropdown(
+                        name: 'dropdown_field',
+                        items: ['Option 1', 'Option 2', 'Option 3']
+                            .map(
+                              (String option) => DropdownMenuItem(
+                                value: option,
+                                child: Text(option),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (String? value) {},
+                      ),
+                      SizedBox(height: 10),
+
+                      // Second Dropdown
+                      FormBuilderDropdown(
+                        name: 'dropdown_field',
+                        items: ['Option 1', 'Option 2', 'Option 3']
+                            .map(
+                              (String option) => DropdownMenuItem(
+                                value: option,
+                                child: Text(option),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (String? value) {},
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
+
             SizedBox(height: 20),
 
-            // Кнопки внизу
+            // Buttons at the bottom
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
