@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../view_model/survey_provider.dart';
 import '../view/widgets/survey_list_widget.dart';
 import '../models/survey_model.dart';
+import './widgets/survey_settings.dart';
 
 class EditorScreen extends ConsumerWidget {
   @override
@@ -10,6 +11,11 @@ class EditorScreen extends ConsumerWidget {
     final selectedSurvey = ref.watch(selectedSurveyProvider);
     final TextEditingController _titleController = TextEditingController();
     final TextEditingController _descController = TextEditingController();
+    final TextEditingController _startDateController = TextEditingController();
+    final TextEditingController _endDateController = TextEditingController();
+    final TextEditingController _facultyController = TextEditingController();
+    final TextEditingController _courseController = TextEditingController();
+    final TextEditingController _groupController = TextEditingController();
 
     if (selectedSurvey != null) {
       _titleController.text = selectedSurvey.title;
@@ -20,31 +26,44 @@ class EditorScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Редактор опитувань'),
         actions: [
-          ElevatedButton.icon(
-            onPressed: () {
-              if (selectedSurvey != null) {
-                final updatedSurvey = Survey(
-                  id: selectedSurvey.id,
-                  title: _titleController.text,
-                  description: _descController.text,
-                  questions: selectedSurvey
-                      .questions, // Keep the same questions for now
-                );
+          Padding(
+            padding: const EdgeInsets.only(right: 12.0),
+            child: FilledButton.icon(
+              onPressed: () {
+                if (selectedSurvey != null) {
+                  final updatedSurvey = Survey(
+                    id: selectedSurvey.id,
+                    title: _titleController.text,
+                    description: _descController.text,
+                    questions: selectedSurvey.questions,
+                    startDate: DateTime.tryParse(_startDateController.text),
+                    endDate: DateTime.tryParse(_endDateController.text),
+                    faculty: _facultyController.text
+                        .split(','), // Розбиваємо рядок на список
+                    course: _courseController.text
+                        .split(',')
+                        .map(int.parse)
+                        .toList(), // Перетворюємо в List<int>
+                    group: _groupController.text
+                        .split(','), // Розбиваємо рядок на список
+                  );
 
-                ref
-                    .read(surveyListProvider.notifier)
-                    .updateSurvey(updatedSurvey);
-                ref.read(selectedSurveyProvider.notifier).state = updatedSurvey;
+                  ref
+                      .read(surveyListProvider.notifier)
+                      .updateSurvey(updatedSurvey);
+                  ref.read(selectedSurveyProvider.notifier).state =
+                      updatedSurvey;
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text('Зміни збережено'),
-                      duration: Duration(seconds: 1)),
-                );
-              }
-            },
-            icon: const Icon(Icons.save_outlined),
-            label: Text('Зберегти зміни'),
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text('Зміни збережено'),
+                        duration: Duration(seconds: 1)),
+                  );
+                }
+              },
+              icon: const Icon(Icons.save_outlined),
+              label: Text('Зберегти зміни'),
+            ),
           ),
         ],
       ),
@@ -126,6 +145,7 @@ class EditorScreen extends ConsumerWidget {
                               maxLines: 3,
                             ),
                             const SizedBox(height: 32),
+                            SurveySettings(),
 
                             // Список питань
                             Text('Питання:',
