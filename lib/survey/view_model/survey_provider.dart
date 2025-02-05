@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/survey_model.dart';
 import '../services/survey_service.dart';
@@ -36,3 +37,8 @@ class SurveyNotifier extends StateNotifier<List<Survey>> {
 }
 
 final selectedSurveyProvider = StateProvider<Survey?>((ref) => null);
+
+final selectedQuestionTypeProvider = StateProvider<QuestionType>((ref) {return QuestionType.text;});
+final titleControllerProvider = StateProvider((ref) => TextEditingController());
+final descControllerProvider = StateProvider((ref) => TextEditingController());
+final questionControllersProvider = StateProvider<Map<String, TextEditingController>>((ref) => {});
