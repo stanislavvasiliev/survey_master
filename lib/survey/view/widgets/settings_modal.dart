@@ -88,7 +88,7 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
         _selectedFaculties.map((f) => f.name).toList();
     List<String> newGroupNames =
         _selectedFaculties.expand((faculty) => faculty.groups).toList();
-    bool newIsActivated = _activeSwitch;
+    bool newIsActivated = _activeSwitch; // Ensure this is correctly set
 
     if (newStartDate != selectedSurvey.startDate ||
         newEndDate != selectedSurvey.endDate ||
@@ -103,10 +103,11 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
         endDate: newEndDate,
         faculty: newFacultiesNames,
         group: newGroupNames,
-        isActivated: newIsActivated,
+        isActivated: newIsActivated, // Updated correctly
       );
       ref.read(surveyListProvider.notifier).updateSurvey(updatedSurvey);
-      ref.read(selectedSurveyProvider.notifier).state = updatedSurvey;
+      ref.read(selectedSurveyProvider.notifier).state =
+          updatedSurvey; // Set new survey state
     }
     Navigator.of(context).pop();
   }

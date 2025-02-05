@@ -55,7 +55,7 @@ class EditorScreen extends ConsumerWidget {
                         .split(',')
                         .map((e) => e.trim())
                         .toList(), // Розбиваємо рядок на список
-                    isActivated: _isActivatedController.text == 'Неактивне',
+                    isActivated: selectedSurvey.isActivated,
                   );
 
                   ref
