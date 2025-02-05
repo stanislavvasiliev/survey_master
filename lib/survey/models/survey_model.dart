@@ -50,8 +50,8 @@ class Survey {
   final DateTime? startDate;
   final DateTime? endDate;
   final List faculty;
-  final List course;
   final List group;
+  final bool isActivated;
 
   Survey({
     required this.id,
@@ -61,8 +61,8 @@ class Survey {
     required this.startDate,
     required this.endDate,
     required this.faculty,
-    required this.course,
     required this.group,
+    required this.isActivated,
   });
 
   // Метод для роботи з налаштуваннями опитування
@@ -74,8 +74,8 @@ class Survey {
     DateTime? startDate,
     DateTime? endDate,
     List? faculty,
-    List? course,
     List? group,
+    bool? isActivated, // Change to bool instead of required
   }) {
     return Survey(
       id: id ?? this.id,
@@ -85,8 +85,12 @@ class Survey {
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       faculty: faculty ?? this.faculty,
-      course: course ?? this.course,
       group: group ?? this.group,
+      isActivated:
+          isActivated ?? this.isActivated, // Update with new property type
     );
   }
 }
+
+final allFaculties =
+    0; //якщо ім'я буде 0, то буде розповсюджуватися на всі факультети.

@@ -14,8 +14,9 @@ class EditorScreen extends ConsumerWidget {
     final TextEditingController _startDateController = TextEditingController();
     final TextEditingController _endDateController = TextEditingController();
     final TextEditingController _facultyController = TextEditingController();
-    final TextEditingController _courseController = TextEditingController();
     final TextEditingController _groupController = TextEditingController();
+    final TextEditingController _isActivatedController =
+        TextEditingController();
 
     if (selectedSurvey != null) {
       _titleController.text = selectedSurvey.title;
@@ -24,8 +25,9 @@ class EditorScreen extends ConsumerWidget {
           selectedSurvey.startDate?.toIso8601String() ?? '';
       _endDateController.text = selectedSurvey.endDate?.toIso8601String() ?? '';
       _facultyController.text = selectedSurvey.faculty.join(', ');
-      _courseController.text = selectedSurvey.course.join(', ');
       _groupController.text = selectedSurvey.group.join(', ');
+      _isActivatedController.text =
+          selectedSurvey.isActivated ? 'Активне' : 'Неактивне';
     }
 
     return Scaffold(
@@ -45,15 +47,15 @@ class EditorScreen extends ConsumerWidget {
                     startDate: DateTime.tryParse(_startDateController.text),
                     endDate: DateTime.tryParse(_endDateController.text),
                     faculty: _facultyController.text
-                        .split(','), // Розбиваємо рядок на список
-                    course: _courseController.text
                         .split(',')
-                        .map(int.parse)
-                        .toList(), // Перетворюємо в List<int>
+                        .map((e) => e.trim())
+                        .toList(), // Розбиваємо рядок на список
+
                     group: _groupController.text
                         .split(',')
                         .map((e) => e.trim())
                         .toList(), // Розбиваємо рядок на список
+                    isActivated: _isActivatedController.text == 'Неактивне',
                   );
 
                   ref

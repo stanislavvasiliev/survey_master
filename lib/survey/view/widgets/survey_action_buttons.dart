@@ -29,9 +29,9 @@ class SurveyActionButtons extends ConsumerWidget {
               ],
               startDate: DateTime.now(),
               endDate: DateTime.now(),
-              faculty: ['Всі'],
-              course: ['Всі'],
-              group: ['Всі'],
+              faculty: [allFaculties],
+              group: [1],
+              isActivated: false,
             );
 
             ref.read(surveyListProvider.notifier).addSurvey(newSurvey);

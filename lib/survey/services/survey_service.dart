@@ -40,8 +40,8 @@ class SurveyService {
         startDate: DateTime.now(),
         endDate: DateTime.now(),
         faculty: ['all'],
-        course: [1],
         group: ['all'],
+        isActivated: false,
       ),
 
       // Опитування 2 - Звички користувачів
@@ -65,8 +65,8 @@ class SurveyService {
         startDate: DateTime.now(),
         endDate: DateTime.now(),
         faculty: ['all'],
-        course: [2],
         group: ['qwer-123', 'qwer-124'],
+        isActivated: true,
       ),
 
       // Опитування 3 - Технічні питання
@@ -90,8 +90,8 @@ class SurveyService {
         startDate: DateTime.now(),
         endDate: DateTime.now(),
         faculty: ['all'],
-        course: [1, 2],
         group: ['qwer-123', 'qwer-124'],
+        isActivated: false,
       ),
     ];
   }

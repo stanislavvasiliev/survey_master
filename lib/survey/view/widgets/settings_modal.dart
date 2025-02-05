@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../view_model/survey_provider.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import '../../services/date_formatter.dart';
+import '../../models/faculty_model.dart';
+import './faculty_dropdown.dart';
+import './group_dropdown.dart';
+import '../widgets/settings_buttons.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 
 class ShowModalSettings extends ConsumerStatefulWidget {
+  ShowModalSettings({super.key});
   @override
   ConsumerState<ShowModalSettings> createState() => _ShowModalSettingsState();
 }
@@ -14,20 +20,21 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
   final _startDateController = TextEditingController();
   final _endDateController = TextEditingController();
   DateTime? _startDate, _endDate;
+  List<EduInstitution> _selectedFaculties = [];
+  bool _activeSwitch = false;
 
   @override
   void initState() {
     super.initState();
-
     final selectedSurvey = ref.read(selectedSurveyProvider);
     if (selectedSurvey != null) {
       _startDate = selectedSurvey.startDate;
       _endDate = selectedSurvey.endDate;
-
       _startDateController.text =
           _startDate != null ? customFormatDate(_startDate!) : '';
       _endDateController.text =
           _endDate != null ? customFormatDate(_endDate!) : '';
+      _activeSwitch = selectedSurvey.isActivated;
     }
   }
 
@@ -64,30 +71,43 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
     }
   }
 
+  void _handleFacultiesSelected(List<EduInstitution> faculties) {
+    setState(() {
+      _selectedFaculties = faculties;
+    });
+  }
+
   void _saveDates() {
     final selectedSurvey = ref.read(selectedSurveyProvider);
     if (selectedSurvey == null) return;
 
-    // Track changes before updating
     bool hasChanges = false;
     DateTime? newStartDate = _startDate;
     DateTime? newEndDate = _endDate;
+    List<String> newFacultiesNames =
+        _selectedFaculties.map((f) => f.name).toList();
+    List<String> newGroupNames =
+        _selectedFaculties.expand((faculty) => faculty.groups).toList();
+    bool newIsActivated = _activeSwitch;
 
     if (newStartDate != selectedSurvey.startDate ||
-        newEndDate != selectedSurvey.endDate) {
+        newEndDate != selectedSurvey.endDate ||
+        !listEquals(newFacultiesNames, selectedSurvey.faculty) ||
+        !listEquals(newGroupNames, selectedSurvey.group) ||
+        newIsActivated != selectedSurvey.isActivated) {
       hasChanges = true;
     }
-
     if (hasChanges) {
       final updatedSurvey = selectedSurvey.copyWith(
         startDate: newStartDate,
         endDate: newEndDate,
+        faculty: newFacultiesNames,
+        group: newGroupNames,
+        isActivated: newIsActivated,
       );
-
       ref.read(surveyListProvider.notifier).updateSurvey(updatedSurvey);
       ref.read(selectedSurveyProvider.notifier).state = updatedSurvey;
     }
-
     Navigator.of(context).pop();
   }
 
@@ -95,7 +115,9 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: Padding(
+      child: Container(
+        width: 600,
+        height: 600,
         padding: const EdgeInsets.all(20.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -104,19 +126,15 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
             const Divider(),
             SizedBox(height: 10),
             Text("Виберіть дати для опитування"),
-
-            // Layout with Row, date fields on the left and dropdowns on the right
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Column(
                     children: [
-                      // Start Date
                       Row(
                         children: [
-                          SizedBox(
-                            width: 200,
+                          Expanded(
                             child: TextField(
                               controller: _startDateController,
                               readOnly: true,
@@ -133,12 +151,9 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
                         ],
                       ),
                       SizedBox(height: 10),
-
-                      // End Date
                       Row(
                         children: [
-                          SizedBox(
-                            width: 200,
+                          Expanded(
                             child: TextField(
                               controller: _endDateController,
                               readOnly: true,
@@ -153,72 +168,35 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
                             onPressed: () => _pickDate(context, false),
                           ),
                         ],
-                      ),
+                      )
                     ],
                   ),
-                ),
-                SizedBox(width: 20), // Space between date fields and dropdowns
-                Expanded(
-                  child: Column(
-                    children: [
-                      // First Dropdown
-                      FormBuilderDropdown(
-                        name: 'dropdown_field',
-                        items: ['Option 1', 'Option 2', 'Option 3']
-                            .map(
-                              (String option) => DropdownMenuItem(
-                                value: option,
-                                child: Text(option),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (String? value) {},
-                      ),
-                      SizedBox(height: 10),
-
-                      // Second Dropdown
-                      FormBuilderDropdown(
-                        name: 'dropdown_field',
-                        items: ['Option 1', 'Option 2', 'Option 3']
-                            .map(
-                              (String option) => DropdownMenuItem(
-                                value: option,
-                                child: Text(option),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (String? value) {},
-                      ),
-                    ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: FormBuilderSwitch(
+                      name: 'Статус опитування',
+                      initialValue: _activeSwitch,
+                      title: const Text('Опитування активне'),
+                      onChanged: (bool? value) {
+                        setState(() {
+                          _activeSwitch = value ?? false;
+                        });
+                      },
+                    ),
                   ),
-                ),
-              ],
+                  FacultyMultiSelectDropdown(
+                    onFacultiesSelected: _handleFacultiesSelected,
+                  ),
+                  GroupMultiSelectDropdown(
+                    selectedFaculties: _selectedFaculties,
+                  ),
+                ],
+              ),
             ),
-
             SizedBox(height: 20),
-
-            // Buttons at the bottom
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: OutlinedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text("Скасувати"),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: FilledButton(
-                    onPressed: _saveDates,
-                    child: Text("Зберегти"),
-                    style: ElevatedButton.styleFrom(elevation: 4),
-                  ),
-                ),
-              ],
+            ModalActionButtons(
+              onSave: _saveDates,
+              onCancel: () => Navigator.of(context).pop(),
             ),
           ],
         ),
