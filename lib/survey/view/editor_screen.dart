@@ -4,10 +4,12 @@ import '../view_model/survey_provider.dart';
 import '../view/widgets/survey_list_widget.dart';
 import '../models/survey_model.dart';
 import './widgets/survey_settings.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class EditorScreen extends ConsumerStatefulWidget {
   @override
   _EditorScreenState createState() => _EditorScreenState();
+
 }
 
 class _EditorScreenState extends ConsumerState<EditorScreen> {
@@ -323,34 +325,11 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                       ElevatedButton(
                         onPressed: () {
                           final selectedType = ref.read(selectedQuestionTypeProvider);
-                          List<String>? options;
-                          int? minScale;
-                          int? maxScale;
-                          if (selectedType == QuestionType.singleChoice || selectedType == QuestionType.multipleChoice || selectedType == QuestionType.dropdown) {
-                            options = ["Варіант 1", "Варіант 2"];
-                          } else if (selectedType == QuestionType.scale) {
-                            minScale = 1;
-                            maxScale = 2;
-                          }
-                          final newQuestion = Question(
-                            id: DateTime.now().toString(),
-                            text: '',
-                            type: selectedType,
-                            options: options,
-                            minScale: minScale,
-                            maxScale: maxScale,
-                          );
+                          final newQuestion = ref.read(questionProvider)
+                              .defaultQuestion(selectedType);
 
-                          ref.read(selectedSurveyProvider.notifier).state = Survey(
-                            id: selectedSurvey.id,
-                            title: selectedSurvey.title,
-                            description: selectedSurvey.description,
+                          ref.read(selectedSurveyProvider.notifier).state = selectedSurvey.copyWith(
                             questions: [...selectedSurvey.questions, newQuestion],
-                            startDate: selectedSurvey.startDate,
-                            endDate: selectedSurvey.endDate,
-                            faculty: [...selectedSurvey.faculty],
-                            group: [...selectedSurvey.group],
-                            isActivated: selectedSurvey.isActivated,
                           );
                         },
                         child: Text('Додати питання'),
