@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../view_model/survey_provider.dart';
 import '../view/widgets/survey_list_widget.dart';
 import '../view/widgets/survey_action_buttons.dart';
+import '../view/widgets/survey_settings.dart';
 
 class SurveyScreen extends ConsumerWidget {
   @override
@@ -98,6 +99,7 @@ class SurveyScreen extends ConsumerWidget {
                             ),
                             const SizedBox(height: 24),
                             const Divider(),
+                            SurveySettingsView(),
 
                             // Список питань
                             Text(
