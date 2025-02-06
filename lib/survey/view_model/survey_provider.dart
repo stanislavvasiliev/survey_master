@@ -37,6 +37,5 @@ class SurveyNotifier extends StateNotifier<List<Survey>> {
 }
 
 final selectedSurveyProvider = StateProvider<Survey?>((ref) => null);
-
 final selectedQuestionTypeProvider = StateProvider<QuestionType>((ref) {return QuestionType.text;});
 final questionControllersProvider = StateProvider<Map<String, TextEditingController>>((ref) => {});

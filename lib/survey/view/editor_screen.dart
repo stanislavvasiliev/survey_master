@@ -5,30 +5,64 @@ import '../view/widgets/survey_list_widget.dart';
 import '../models/survey_model.dart';
 import './widgets/survey_settings.dart';
 
-class EditorScreen extends ConsumerWidget {
+class EditorScreen extends ConsumerStatefulWidget {
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final selectedSurvey = ref.watch(selectedSurveyProvider);
-    final TextEditingController _titleController = TextEditingController();
-    final TextEditingController _descController = TextEditingController();
-    final TextEditingController _startDateController = TextEditingController();
-    final TextEditingController _endDateController = TextEditingController();
-    final TextEditingController _facultyController = TextEditingController();
-    final TextEditingController _groupController = TextEditingController();
-    final TextEditingController _isActivatedController = TextEditingController();
+  _EditorScreenState createState() => _EditorScreenState();
+}
 
+class _EditorScreenState extends ConsumerState<EditorScreen> {
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descController = TextEditingController();
+  final TextEditingController _startDateController = TextEditingController();
+  final TextEditingController _endDateController = TextEditingController();
+  final TextEditingController _facultyController = TextEditingController();
+  final TextEditingController _groupController = TextEditingController();
+  final TextEditingController _isActivatedController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final selectedSurvey = ref.read(selectedSurveyProvider);
     if (selectedSurvey != null) {
-      _titleController.text = selectedSurvey.title;
-      _descController.text = selectedSurvey.description;
-      _startDateController.text =
-          selectedSurvey.startDate?.toIso8601String() ?? '';
-      _endDateController.text = selectedSurvey.endDate?.toIso8601String() ?? '';
-      _facultyController.text = selectedSurvey.faculty.join(', ');
-      _groupController.text = selectedSurvey.group.join(', ');
-      _isActivatedController.text =
-        selectedSurvey.isActivated ? 'Активне' : 'Неактивне';
+      _updateControllers(selectedSurvey);
     }
+  }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final selectedSurvey = ref.watch(selectedSurveyProvider);
+    if (selectedSurvey != null) {
+      _updateControllers(selectedSurvey);
+    }
+  }
+
+  void _updateControllers(Survey selectedSurvey) {
+    _titleController.text = selectedSurvey.title;
+    _descController.text = selectedSurvey.description;
+    _startDateController.text =
+        selectedSurvey.startDate?.toIso8601String() ?? '';
+    _endDateController.text = selectedSurvey.endDate?.toIso8601String() ?? '';
+    _facultyController.text = selectedSurvey.faculty.join(', ');
+    _groupController.text = selectedSurvey.group.join(', ');
+    _isActivatedController.text =
+    selectedSurvey.isActivated ? 'Активне' : 'Неактивне';
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descController.dispose();
+    _startDateController.dispose();
+    _endDateController.dispose();
+    _facultyController.dispose();
+    _groupController.dispose();
+    _isActivatedController.dispose();
+    super.dispose();
+  }
+  @override
+  Widget build(BuildContext context) {
+    final selectedSurvey = ref.watch(selectedSurveyProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Редактор опитувань'),
@@ -292,7 +326,7 @@ class EditorScreen extends ConsumerWidget {
                           List<String>? options;
                           int? minScale;
                           int? maxScale;
-                          if (selectedType == QuestionType.singleChoice || selectedType == QuestionType.multipleChoice) {
+                          if (selectedType == QuestionType.singleChoice || selectedType == QuestionType.multipleChoice || selectedType == QuestionType.dropdown) {
                             options = ["Варіант 1", "Варіант 2"];
                           } else if (selectedType == QuestionType.scale) {
                             minScale = 1;
