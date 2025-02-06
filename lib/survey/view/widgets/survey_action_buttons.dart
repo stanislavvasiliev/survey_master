@@ -18,12 +18,12 @@ class SurveyActionButtons extends ConsumerWidget {
           onPressed: () {
             final newSurvey = Survey(
               id: DateTime.now().millisecondsSinceEpoch.toString(),
-              title: 'Нове опитування',
-              description: 'Додайте опис опитування',
+              title: '',
+              description: '',
               questions: [
                 Question(
                   id: 'q1',
-                  text: 'Чи було створення опитувальника успішним?',
+                  text: '',
                   type: QuestionType.text,
                 ),
               ],

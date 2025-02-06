@@ -41,6 +41,23 @@ class Question {
       'Для шкали вкажіть minScale та maxScale',
     );
   }
+  Question copyWith({
+    String? id,
+    String? text,
+    QuestionType? type,
+    List<String>? options,
+    int? minScale,
+    int? maxScale,
+  }) {
+    return Question(
+      id: id ?? this.id,
+      text: text ?? this.text,
+      type: type ?? this.type,
+      options: options ?? this.options,
+      minScale: minScale ?? this.minScale,
+      maxScale: maxScale ?? this.maxScale,
+    );
+  }
 }
 
 // Оновлена модель опитування
