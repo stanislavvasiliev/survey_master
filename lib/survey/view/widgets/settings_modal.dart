@@ -11,7 +11,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 
 class ShowModalSettings extends ConsumerStatefulWidget {
-  ShowModalSettings({super.key});
+  const ShowModalSettings({super.key});
   @override
   ConsumerState<ShowModalSettings> createState() => _ShowModalSettingsState();
 }

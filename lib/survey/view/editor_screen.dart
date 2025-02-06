@@ -7,27 +7,29 @@ import '../models/survey_model.dart';
 import './widgets/survey_settings.dart';
 
 class EditorScreen extends ConsumerWidget {
+  const EditorScreen({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedSurvey = ref.watch(selectedSurveyProvider);
-    final TextEditingController _titleController = TextEditingController();
-    final TextEditingController _descController = TextEditingController();
-    final TextEditingController _startDateController = TextEditingController();
-    final TextEditingController _endDateController = TextEditingController();
-    final TextEditingController _facultyController = TextEditingController();
-    final TextEditingController _groupController = TextEditingController();
-    final TextEditingController _isActivatedController =
+    final TextEditingController titleController = TextEditingController();
+    final TextEditingController descController = TextEditingController();
+    final TextEditingController startDateController = TextEditingController();
+    final TextEditingController endDateController = TextEditingController();
+    final TextEditingController facultyController = TextEditingController();
+    final TextEditingController groupController = TextEditingController();
+    final TextEditingController isActivatedController =
       TextEditingController();
 
     if (selectedSurvey != null) {
-      _titleController.text = selectedSurvey.title;
-      _descController.text = selectedSurvey.description;
-      _startDateController.text =
+      titleController.text = selectedSurvey.title;
+      descController.text = selectedSurvey.description;
+      startDateController.text =
           selectedSurvey.startDate?.toIso8601String() ?? '';
-      _endDateController.text = selectedSurvey.endDate?.toIso8601String() ?? '';
-      _facultyController.text = selectedSurvey.faculty.join(', ');
-      _groupController.text = selectedSurvey.group.join(', ');
-      _isActivatedController.text =
+      endDateController.text = selectedSurvey.endDate?.toIso8601String() ?? '';
+      facultyController.text = selectedSurvey.faculty.join(', ');
+      groupController.text = selectedSurvey.group.join(', ');
+      isActivatedController.text =
         selectedSurvey.isActivated ? 'Активне' : 'Неактивне';
     }
 
@@ -42,17 +44,17 @@ class EditorScreen extends ConsumerWidget {
                 if (selectedSurvey != null) {
                   final updatedSurvey = Survey(
                     id: selectedSurvey.id,
-                    title: _titleController.text,
-                    description: _descController.text,
+                    title: titleController.text,
+                    description: descController.text,
                     questions: selectedSurvey.questions,
-                    startDate: DateTime.tryParse(_startDateController.text),
-                    endDate: DateTime.tryParse(_endDateController.text),
-                    faculty: _facultyController.text
+                    startDate: DateTime.tryParse(startDateController.text),
+                    endDate: DateTime.tryParse(endDateController.text),
+                    faculty: facultyController.text
                         .split(',')
                         .map((e) => e.trim())
                         .toList(), // Розбиваємо рядок на список
 
-                    group: _groupController.text
+                    group: groupController.text
                         .split(',')
                         .map((e) => e.trim())
                         .toList(), // Розбиваємо рядок на список
@@ -133,7 +135,7 @@ class EditorScreen extends ConsumerWidget {
                     children: [
                       // Заголовок
                       TextField(
-                        controller: _titleController,
+                        controller: titleController,
                         decoration: InputDecoration(
                           labelText: 'Назва опитування',
                           border: OutlineInputBorder(
@@ -148,7 +150,7 @@ class EditorScreen extends ConsumerWidget {
                       const SizedBox(height: 24),
                       // Опис
                       TextField(
-                        controller: _descController,
+                        controller: descController,
                         decoration: InputDecoration(
                           labelText: 'Опис опитування',
                           border: OutlineInputBorder(
@@ -179,14 +181,14 @@ class EditorScreen extends ConsumerWidget {
                             title: selectedSurvey.title,
                             description: selectedSurvey.description,
                             questions: updatedQuestions,
-                            startDate: DateTime.tryParse(_startDateController.text),
-                            endDate: DateTime.tryParse(_endDateController.text),
-                            faculty: _facultyController.text
+                            startDate: DateTime.tryParse(startDateController.text),
+                            endDate: DateTime.tryParse(endDateController.text),
+                            faculty: facultyController.text
                                 .split(',')
                                 .map((e) => e.trim())
                                 .toList(), // Розбиваємо рядок на список
 
-                            group: _groupController.text
+                            group: groupController.text
                                 .split(',')
                                 .map((e) => e.trim())
                                 .toList(), // Розбиваємо рядок на список

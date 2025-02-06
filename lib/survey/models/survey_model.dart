@@ -40,6 +40,7 @@ class Question {
           : true,
       'Для шкали вкажіть minScale та maxScale',
     );
+
   }
 }
 

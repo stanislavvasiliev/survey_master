@@ -5,7 +5,7 @@ import '../../models/survey_model.dart';
 import '../../view_model/survey_provider.dart';
 
 class SurveyActionButtons extends ConsumerWidget {
-  const SurveyActionButtons();
+  const SurveyActionButtons({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -6,8 +6,7 @@ import '../../models/faculty_model.dart';
 class GroupMultiSelectDropdown extends ConsumerWidget {
   final List<EduInstitution> selectedFaculties;
 
-  GroupMultiSelectDropdown({Key? key, required this.selectedFaculties})
-      : super(key: key);
+  const GroupMultiSelectDropdown({super.key, required this.selectedFaculties});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
