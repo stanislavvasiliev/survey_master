@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import '../../models/survey_model.dart';
 
@@ -7,10 +8,10 @@ class SurveyFormWidget extends StatefulWidget {
   final Function(Map<String, dynamic>) onSubmit;
 
   const SurveyFormWidget({
-    Key? key,
+    super.key,
     required this.survey,
     required this.onSubmit,
-  }) : super(key: key);
+  });
 
   @override
   State<SurveyFormWidget> createState() => _SurveyFormWidgetState();
@@ -47,7 +48,7 @@ class _SurveyFormWidgetState extends State<SurveyFormWidget> {
                 ),
               ),
             );
-          }).toList(),
+          }),
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () {
@@ -145,7 +146,10 @@ class _SurveyFormWidgetState extends State<SurveyFormWidget> {
         return FormBuilderTextField(
           name: question.id,
           decoration: const InputDecoration(hintText: 'Введіть число'),
-          keyboardType: TextInputType.number,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'^\d*[.,]?\d*$')) // Дозволяє лише цифри та одну крапку/кому
+          ],
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Будь ласка, введіть число';

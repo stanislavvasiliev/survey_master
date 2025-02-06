@@ -36,6 +36,17 @@ class SurveyService {
             type: QuestionType.multipleChoice,
             options: ['Дизайн', 'Швидкість', 'Функціонал', 'Інше'],
           ),
+          Question(
+            id: 'q8',
+            text: 'Скільки додатків ви встановлюєте щомісяця?',
+            type: QuestionType.numeric,
+          ),
+          Question(
+            id: 'q8',
+            text: 'Яким додатком ви користуєтеся найбульше?',
+            type: QuestionType.dropdown,
+            options: ['Zoom Workplace', 'Microsoft Teams', 'Viber', 'Інше'],
+          ),
         ],
         startDate: DateTime.now(),
         endDate: DateTime.now(),
