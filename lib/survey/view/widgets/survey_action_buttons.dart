@@ -19,7 +19,7 @@ class SurveyActionButtons extends ConsumerWidget {
             final newSurvey = Survey(
               id: DateTime.now().millisecondsSinceEpoch.toString(),
               title: '',
-              description: '', //Думаю буде краще якщо це буде пустим...
+              description: '',
               questions: [
                 Question(
                   id: 'q1',
@@ -27,6 +27,11 @@ class SurveyActionButtons extends ConsumerWidget {
                   type: QuestionType.text,
                 ),
               ],
+              startDate: DateTime.now(),
+              endDate: DateTime.now(),
+              faculty: [allFaculties],
+              group: [1],
+              isActivated: false,
             );
 
             ref.read(surveyListProvider.notifier).addSurvey(newSurvey);
