@@ -17,7 +17,7 @@ class EditorScreen extends ConsumerWidget {
     final TextEditingController _facultyController = TextEditingController();
     final TextEditingController _groupController = TextEditingController();
     final TextEditingController _isActivatedController =
-        TextEditingController();
+      TextEditingController();
 
     if (selectedSurvey != null) {
       _titleController.text = selectedSurvey.title;
@@ -28,7 +28,7 @@ class EditorScreen extends ConsumerWidget {
       _facultyController.text = selectedSurvey.faculty.join(', ');
       _groupController.text = selectedSurvey.group.join(', ');
       _isActivatedController.text =
-          selectedSurvey.isActivated ? 'Активне' : 'Неактивне';
+        selectedSurvey.isActivated ? 'Активне' : 'Неактивне';
     }
 
     return Scaffold(
@@ -104,13 +104,11 @@ class EditorScreen extends ConsumerWidget {
                       child: SurveyListWidget(
                         onSelectSurvey: (id) {
                           final surveys = ref.read(surveyListProvider);
-                          if (surveys != null) {
                             final selected =
-                                surveys.firstWhere((survey) => survey.id == id);
+                            surveys.firstWhere((survey) => survey.id == id);
                             ref.read(selectedSurveyProvider.notifier).state =
                                 selected;
-                          }
-                        },
+                          },
                       ),
                     ),
                   ],
@@ -181,8 +179,19 @@ class EditorScreen extends ConsumerWidget {
                             title: selectedSurvey.title,
                             description: selectedSurvey.description,
                             questions: updatedQuestions,
-                          );
+                            startDate: DateTime.tryParse(_startDateController.text),
+                            endDate: DateTime.tryParse(_endDateController.text),
+                            faculty: _facultyController.text
+                                .split(',')
+                                .map((e) => e.trim())
+                                .toList(), // Розбиваємо рядок на список
 
+                            group: _groupController.text
+                                .split(',')
+                                .map((e) => e.trim())
+                                .toList(), // Розбиваємо рядок на список
+                            isActivated: selectedSurvey.isActivated,
+                          );
                           ref.read(surveyListProvider.notifier).updateSurvey(updatedSurvey);
                           ref.read(selectedSurveyProvider.notifier).state = updatedSurvey;
 

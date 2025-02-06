@@ -47,13 +47,11 @@ class SurveyScreen extends ConsumerWidget {
                       child: SurveyListWidget(
                         onSelectSurvey: (id) {
                           final surveys = ref.read(surveyListProvider);
-                          if (surveys != null) {
                             final selected =
                                 surveys.firstWhere((survey) => survey.id == id);
                             ref.read(selectedSurveyProvider.notifier).state =
                                 selected;
-                          }
-                        },
+                          },
                       ),
                     ),
                   ],
