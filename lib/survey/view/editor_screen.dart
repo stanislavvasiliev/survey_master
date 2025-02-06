@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:survey_master/survey/view/widgets/survey_form_widget.dart';
 import '../view_model/survey_provider.dart';
 import '../view/widgets/survey_list_widget.dart';
 import '../models/survey_model.dart';
@@ -124,117 +125,77 @@ class EditorScreen extends ConsumerWidget {
               child: selectedSurvey == null
                   ? Center(child: Text('Оберіть опитування для редагування'))
                   : Card(
-                      elevation: 1,
-                      margin: EdgeInsets.zero,
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Заголовок
-                            TextField(
-                              controller: _titleController,
-                              decoration: InputDecoration(
-                                labelText: 'Назва опитування',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              style: Theme.of(context).textTheme.headlineSmall,
-                            ),
-                            const SizedBox(height: 24),
 
-                            // Опис
-                            TextField(
-                              controller: _descController,
-                              decoration: InputDecoration(
-                                labelText: 'Опис опитування',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              maxLines: 3,
-                            ),
-                            const SizedBox(height: 32),
-                            SurveySettings(),
-
-                            // Список питань
-                            Text('Питання:',
-                                style: Theme.of(context).textTheme.titleLarge),
-                            const Divider(),
-                            ...selectedSurvey.questions
-                                .map((question) => Card(
-                                      margin: const EdgeInsets.symmetric(
-                                          vertical: 8),
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        side: BorderSide(
-                                          color: Theme.of(context).dividerColor,
-                                        ),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(16.0),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            TextField(
-                                              controller: TextEditingController(
-                                                  text: question.text),
-                                              decoration: InputDecoration(
-                                                labelText: 'Текст питання',
-                                                border: UnderlineInputBorder(),
-                                                contentPadding: EdgeInsets.zero,
-                                              ),
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .titleMedium,
-                                            ),
-                                            const SizedBox(height: 12),
-                                            Wrap(
-                                              spacing: 8,
-                                              crossAxisAlignment:
-                                                  WrapCrossAlignment.center,
-                                              children: [
-                                                Chip(
-                                                  label: Text(
-                                                    question.type
-                                                        .toString()
-                                                        .split('.')
-                                                        .last,
-                                                    style: TextStyle(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .onSecondaryContainer,
-                                                    ),
-                                                  ),
-                                                  backgroundColor:
-                                                      Theme.of(context)
-                                                          .colorScheme
-                                                          .secondaryContainer,
-                                                ),
-                                                if (question.options != null)
-                                                  Text(
-                                                    'Варіанти: ${question.options!.join(', ')}',
-                                                    style: TextStyle(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .outline,
-                                                    ),
-                                                  ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ))
-                                .toList(),
-                          ],
+                elevation: 1,
+                margin: EdgeInsets.zero,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Заголовок
+                      TextField(
+                        controller: _titleController,
+                        decoration: InputDecoration(
+                          labelText: 'Назва опитування',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
+                        style: Theme.of(context).textTheme.headlineSmall,
                       ),
-                    ),
-            ),
+                      const SizedBox(height: 24),
+                   
+                      SurveySettings(),
+                      const SizedBox(height: 24),
+                      // Опис
+                      TextField(
+                        controller: _descController,
+                        decoration: InputDecoration(
+                          labelText: 'Опис опитування',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        maxLines: 3,
+                      ),
+                      const SizedBox(height: 32),
+
+                      // // Список питань
+                      SurveyFormWidget(
+                        survey: selectedSurvey,
+                        onSubmit: (updatedAnswers) {
+                          final updatedQuestions = selectedSurvey.questions.map((q) {
+                            return Question(
+                              id: q.id,
+                              text: updatedAnswers[q.id] ?? q.text,
+                              type: q.type,
+                              options: q.options,
+                              minScale: q.minScale,
+                              maxScale: q.maxScale,
+                            );
+                          }).toList();
+
+                          final updatedSurvey = Survey(
+                            id: selectedSurvey.id,
+                            title: selectedSurvey.title,
+                            description: selectedSurvey.description,
+                            questions: updatedQuestions,
+                          );
+
+                          ref.read(surveyListProvider.notifier).updateSurvey(updatedSurvey);
+                          ref.read(selectedSurveyProvider.notifier).state = updatedSurvey;
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Зміни збережено'), duration: Duration(seconds: 1)),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            )
           ],
         ),
       ),
