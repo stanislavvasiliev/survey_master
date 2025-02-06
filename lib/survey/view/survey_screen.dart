@@ -4,6 +4,7 @@ import 'package:survey_master/survey/view/widgets/survey_form_widget.dart';
 import '../view_model/survey_provider.dart';
 import '../view/widgets/survey_list_widget.dart';
 import '../view/widgets/survey_action_buttons.dart';
+import '../view/widgets/survey_settings.dart';
 
 class SurveyScreen extends ConsumerWidget {
   @override
@@ -93,14 +94,14 @@ class SurveyScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 16),
 
-                      // Опис
-                      Text(
-                        selectedSurvey.description,
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                      const SizedBox(height: 24),
-                      const Divider(),
-
+                          // Опис
+                            Text(
+                              selectedSurvey.description,
+                              style: Theme.of(context).textTheme.bodyLarge,
+                            ),
+                            const SizedBox(height: 24),
+                            const Divider(),
+                            SurveySettingsView(),
                       // Форма з питаннями
                       SurveyFormWidget(
                         survey: selectedSurvey,

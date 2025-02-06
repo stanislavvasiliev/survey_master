@@ -37,6 +37,11 @@ class SurveyService {
             options: ['Дизайн', 'Швидкість', 'Функціонал', 'Інше'],
           ),
         ],
+        startDate: DateTime.now(),
+        endDate: DateTime.now(),
+        faculty: ['all'],
+        group: ['all'],
+        isActivated: false,
       ),
 
       // Опитування 2 - Звички користувачів
@@ -57,6 +62,11 @@ class SurveyService {
             type: QuestionType.text,
           ),
         ],
+        startDate: DateTime.now(),
+        endDate: DateTime.now(),
+        faculty: ['all'],
+        group: ['qwer-123', 'qwer-124'],
+        isActivated: true,
       ),
 
       // Опитування 3 - Технічні питання
@@ -77,6 +87,11 @@ class SurveyService {
             type: QuestionType.text,
           ),
         ],
+        startDate: DateTime.now(),
+        endDate: DateTime.now(),
+        faculty: ['all'],
+        group: ['qwer-123', 'qwer-124'],
+        isActivated: false,
       ),
 
 

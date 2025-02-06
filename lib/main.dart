@@ -30,15 +30,12 @@ class MyApp extends ConsumerWidget {
 class MainScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
-
     return Scaffold(
       appBar: AppBar(
-        title: Text('SurveyMaster', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest ,
-        actions: [
-          ThemeSwitcher()
-        ],
+        title:
+            Text('SurveyMaster', style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+        actions: [ThemeSwitcher()],
       ),
       body: Navigator(
         initialRoute: '/surveys',
