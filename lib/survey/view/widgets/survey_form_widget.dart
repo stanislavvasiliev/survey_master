@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/survey_model.dart';
+import '../../view_model/survey_provider.dart';
 
-class SurveyFormWidget extends StatefulWidget {
+class SurveyFormWidget extends ConsumerStatefulWidget {
   final Survey survey;
   final Function(Map<String, dynamic>) onSubmit;
 
@@ -13,12 +15,12 @@ class SurveyFormWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<SurveyFormWidget> createState() => _SurveyFormWidgetState();
+  ConsumerState<SurveyFormWidget> createState() => _SurveyFormWidgetState();
 }
 
-class _SurveyFormWidgetState extends State<SurveyFormWidget> {
+class _SurveyFormWidgetState extends ConsumerState<SurveyFormWidget> {
   final _formKey = GlobalKey<FormBuilderState>();
-  Map<String, dynamic> answers = {};
+  Map<String, dynamic> answers = {}; // Повернено локальний стан
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +49,7 @@ class _SurveyFormWidgetState extends State<SurveyFormWidget> {
                 ),
               ),
             );
-          }).toList(),
+          }),
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () {
@@ -71,29 +73,23 @@ class _SurveyFormWidgetState extends State<SurveyFormWidget> {
         return FormBuilderCheckboxGroup<String>(
           name: question.id,
           options: question.options!
-              .map((option) => FormBuilderFieldOption<String>(
-            value: option,
-            child: Text(option),
-          ))
+              .map((option) => FormBuilderFieldOption<String>(value: option, child: Text(option)))
               .toList(),
-          orientation: OptionsOrientation.vertical,
-          separator: const SizedBox(height: 8),
-          validator: (value) => (value == null || value.isEmpty)
-              ? 'Будь ласка, оберіть хоча б один варіант'
-              : null,
+          onChanged: (value) {
+            ref.read(userAnswersProvider(widget.survey.id).notifier).updateAnswer(question.id, value?.join(',') ?? '');
+          },
+          validator: (value) => (value == null || value.isEmpty) ? 'Будь ласка, оберіть хоча б один варіант' : null,
         );
 
       case QuestionType.singleChoice:
         return FormBuilderRadioGroup<String>(
           name: question.id,
           options: question.options!
-              .map((option) => FormBuilderFieldOption<String>(
-            value: option,
-            child: Text(option),
-          ))
+              .map((option) => FormBuilderFieldOption<String>(value: option, child: Text(option)))
               .toList(),
-          orientation: OptionsOrientation.vertical,
-          separator: const SizedBox(height: 8),
+          onChanged: (value) {
+            ref.read(userAnswersProvider(widget.survey.id).notifier).updateAnswer(question.id, value ?? '');
+          },
           validator: (value) => value == null ? 'Будь ласка, оберіть варіант' : null,
         );
 
@@ -104,6 +100,9 @@ class _SurveyFormWidgetState extends State<SurveyFormWidget> {
           items: question.options!
               .map((option) => DropdownMenuItem(value: option, child: Text(option)))
               .toList(),
+          onChanged: (value) {
+            ref.read(userAnswersProvider(widget.survey.id).notifier).updateAnswer(question.id, value ?? '');
+          },
           validator: (value) => value == null ? 'Будь ласка, оберіть варіант' : null,
         );
 
@@ -116,14 +115,15 @@ class _SurveyFormWidgetState extends State<SurveyFormWidget> {
               max: question.maxScale!.toDouble(),
               initialValue: question.minScale!.toDouble(),
               divisions: question.maxScale! - question.minScale!,
-              validator: (value) => value == null ? 'Будь ласка, оберіть значення' : null,
               onChanged: (value) {
                 if (value != null) {
                   setState(() {
                     answers[question.id] = value;
                   });
                 }
+                ref.read(userAnswersProvider(widget.survey.id).notifier).updateAnswer(question.id, value.toString());
               },
+              validator: (value) => value == null ? 'Будь ласка, оберіть значення' : null,
             ),
             Text(
               'Поточне значення: ${answers[question.id]?.round() ?? question.minScale}',
@@ -136,9 +136,10 @@ class _SurveyFormWidgetState extends State<SurveyFormWidget> {
         return FormBuilderTextField(
           name: question.id,
           decoration: const InputDecoration(hintText: 'Введіть вашу відповідь'),
-          validator: (value) => (value == null || value.isEmpty)
-              ? 'Будь ласка, введіть відповідь'
-              : null,
+          onChanged: (value) {
+            ref.read(userAnswersProvider(widget.survey.id).notifier).updateAnswer(question.id, value ?? '');
+          },
+          validator: (value) => (value == null || value.isEmpty) ? 'Будь ласка, введіть відповідь' : null,
         );
 
       case QuestionType.numeric:
@@ -146,6 +147,9 @@ class _SurveyFormWidgetState extends State<SurveyFormWidget> {
           name: question.id,
           decoration: const InputDecoration(hintText: 'Введіть число'),
           keyboardType: TextInputType.number,
+          onChanged: (value) {
+            ref.read(userAnswersProvider(widget.survey.id).notifier).updateAnswer(question.id, value ?? '');
+          },
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Будь ласка, введіть число';

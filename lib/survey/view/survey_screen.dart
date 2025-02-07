@@ -10,6 +10,9 @@ class SurveyScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedSurvey = ref.watch(selectedSurveyProvider);
+    final answeredCount = ref.watch(answeredQuestionsProvider(selectedSurvey?.id ?? ''));
+    final totalQuestions = selectedSurvey?.questions.length ?? 0;
+    final progress = totalQuestions > 0 ? (answeredCount / totalQuestions).toDouble() : 0.0;
 
     return Scaffold(
       appBar: AppBar(
@@ -47,11 +50,11 @@ class SurveyScreen extends ConsumerWidget {
                       child: SurveyListWidget(
                         onSelectSurvey: (id) {
                           final surveys = ref.read(surveyListProvider);
-                            final selected =
-                                surveys.firstWhere((survey) => survey.id == id);
-                            ref.read(selectedSurveyProvider.notifier).state =
-                                selected;
-                          },
+                          final selected =
+                          surveys.firstWhere((survey) => survey.id == id);
+                          ref.read(selectedSurveyProvider.notifier).state =
+                              selected;
+                        },
                       ),
                     ),
                   ],
@@ -61,7 +64,6 @@ class SurveyScreen extends ConsumerWidget {
 
             const VerticalDivider(width: 1),
 
-            // Права панель - перегляд опитування
             // Права панель - перегляд опитування
             Expanded(
               child: selectedSurvey == null
@@ -92,14 +94,36 @@ class SurveyScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 16),
 
-                          // Опис
-                            Text(
-                              selectedSurvey.description,
-                              style: Theme.of(context).textTheme.bodyLarge,
-                            ),
-                            const SizedBox(height: 24),
-                            const Divider(),
-                            SurveySettingsView(),
+                      // Опис
+                      Text(
+                        selectedSurvey.description,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      const SizedBox(height: 24),
+                      const Divider(),
+                      SurveySettingsView(),
+
+                      // Прогрес-бар
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Прогрес: $answeredCount / $totalQuestions питань (${(progress * 100).toInt()}%)',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          LinearProgressIndicator(
+                            value: progress,
+                            minHeight: 6,
+                            backgroundColor:
+                            Colors.grey.shade300,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 16),
+
                       // Форма з питаннями
                       SurveyFormWidget(
                         survey: selectedSurvey,

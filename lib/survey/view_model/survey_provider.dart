@@ -36,3 +36,24 @@ class SurveyNotifier extends StateNotifier<List<Survey>> {
 }
 
 final selectedSurveyProvider = StateProvider<Survey?>((ref) => null);
+
+final userAnswersProvider = StateNotifierProvider.family<UserAnswersNotifier, Map<String, String>, String>((ref, surveyId) {
+  return UserAnswersNotifier();
+});
+
+class UserAnswersNotifier extends StateNotifier<Map<String, String>> {
+  UserAnswersNotifier() : super({});
+
+  void updateAnswer(String questionId, String answer) {
+    state = {...state, questionId: answer};
+  }
+
+  void clearAnswers() {
+    state = {};
+  }
+}
+
+final answeredQuestionsProvider = StateProvider.family<int, String>((ref, surveyId) {
+  final answers = ref.watch(userAnswersProvider(surveyId));
+  return answers.values.where((answer) => answer.isNotEmpty).length;
+});
