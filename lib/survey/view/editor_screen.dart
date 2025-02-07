@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:survey_master/survey/view/widgets/survey_form_widget.dart';
-import 'package:survey_master/survey/view/widgets/survey_results_overlay.dart';
-import '../view_model/role_provider.dart';
 import '../view_model/survey_provider.dart';
 import '../view/widgets/survey_list_widget.dart';
 import '../models/survey_model.dart';
@@ -80,27 +78,6 @@ class EditorScreen extends ConsumerWidget {
               label: Text('Зберегти зміни'),
             ),
           ),
-          Consumer(
-            builder: (context, ref, child) {
-              final isAdmin = ref.watch(isAdminProvider);
-              return IconButton(
-                icon: const Icon(Icons.analytics_outlined),
-                onPressed: selectedSurvey == null
-                    ? null
-                    : () {
-                        showDialog(
-                          context: context,
-                          barrierDismissible: true,
-                          builder: (context) => SurveyResultsOverlay(
-                            survey: selectedSurvey,
-                            onClose: () => Navigator.of(context).pop(),
-                          ),
-                        );
-                      },
-                tooltip: 'Переглянути результати',
-              );
-            },
-          )
         ],
       ),
       body: Padding(

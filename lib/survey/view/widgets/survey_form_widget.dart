@@ -6,24 +6,6 @@ import 'package:survey_master/survey/view/widgets/survey_response_model.dart';
 import '../../models/survey_model.dart';
 import '../../view_model/survey_provider.dart';
 
-/*class SurveyFormWidget extends StatefulWidget {
-  final Survey survey;
-  final Function(Map<String, dynamic>) onSubmit;
-
-  const SurveyFormWidget({
-    super.key,
-    required this.survey,
-    required this.onSubmit,
-  });
-
-  @override
-  State<SurveyFormWidget> createState() => _SurveyFormWidgetState();
-}
-
-class _SurveyFormWidgetState extends State<SurveyFormWidget> {
-  final _formKey = GlobalKey<FormBuilderState>();
-  Map<String, dynamic> answers = {};*/
-
 class SurveyFormWidget extends ConsumerStatefulWidget {
   final Survey survey;
   final Function(Map<String, dynamic>) onSubmit;
@@ -140,17 +122,6 @@ class _SurveyFormWidgetState extends ConsumerState<SurveyFormWidget> {
             );
           }),
           const SizedBox(height: 24),
-          /*ElevatedButton(
-            onPressed: () {
-              if (_formKey.currentState?.saveAndValidate() ?? false) {
-                setState(() {
-                  answers = _formKey.currentState!.value;
-                });
-                widget.onSubmit(answers);
-              }
-            },
-            child: const Text('Відправити відповіді'),
-          ),*/
           ElevatedButton(
             onPressed: _submitForm,
             child: const Text('Відправити відповіді'),
