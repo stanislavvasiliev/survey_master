@@ -37,12 +37,12 @@ class SurveyService {
             options: ['Дизайн', 'Швидкість', 'Функціонал', 'Інше'],
           ),
           Question(
-            id: 'q8',
+            id: 'q4',
             text: 'Скільки додатків ви встановлюєте щомісяця?',
             type: QuestionType.numeric,
           ),
           Question(
-            id: 'q8',
+            id: 'q5',
             text: 'Яким додатком ви користуєтеся найбульше?',
             type: QuestionType.dropdown,
             options: ['Zoom Workplace', 'Microsoft Teams', 'Viber', 'Інше'],
@@ -62,13 +62,13 @@ class SurveyService {
         description: 'Дослідження поводження користувачів',
         questions: [
           Question(
-            id: 'q4',
+            id: 'q6',
             text: 'Скільки часу ви проводите в додатку за день?',
             type: QuestionType.singleChoice,
             options: ['До 30 хв', '1-2 години', 'Більше 3 годин'],
           ),
           Question(
-            id: 'q5',
+            id: 'q7',
             text: 'Ваші пропозиції щодо зменшення часу використання:',
             type: QuestionType.text,
           ),
@@ -87,13 +87,13 @@ class SurveyService {
         description: 'Допоможіть виправити помилки',
         questions: [
           Question(
-            id: 'q6',
+            id: 'q8',
             text: 'Чи стикались ви з вилетами додатку?',
             type: QuestionType.singleChoice,
             options: ['Так', 'Ні'],
           ),
           Question(
-            id: 'q7',
+            id: 'q9',
             text: 'Опишіть проблему детально:',
             type: QuestionType.text,
           ),

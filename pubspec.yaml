@@ -36,6 +36,8 @@ dependencies:
   multi_dropdown: ^3.0.1
   flutter_form_builder: ^9.3.0
   form_builder_validators: ^10.0.1
+  pluto_grid: ^8.0.0
+
 
 dev_dependencies:
   flutter_test:

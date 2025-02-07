@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:survey_master/survey/view/widgets/survey_response_model.dart';
 import '../../models/survey_model.dart';
+import '../../view_model/survey_provider.dart';
 
-class SurveyFormWidget extends StatefulWidget {
+/*class SurveyFormWidget extends StatefulWidget {
   final Survey survey;
   final Function(Map<String, dynamic>) onSubmit;
 
@@ -19,7 +22,94 @@ class SurveyFormWidget extends StatefulWidget {
 
 class _SurveyFormWidgetState extends State<SurveyFormWidget> {
   final _formKey = GlobalKey<FormBuilderState>();
+  Map<String, dynamic> answers = {};*/
+
+class SurveyFormWidget extends ConsumerStatefulWidget {
+  final Survey survey;
+  final Function(Map<String, dynamic>) onSubmit;
+
+  const SurveyFormWidget({
+    super.key,
+    required this.survey,
+    required this.onSubmit,
+  });
+
+  @override
+  ConsumerState<SurveyFormWidget> createState() => _SurveyFormWidgetState();
+}
+
+class _SurveyFormWidgetState extends ConsumerState<SurveyFormWidget> {
+  final _formKey = GlobalKey<FormBuilderState>();
   Map<String, dynamic> answers = {};
+
+  // Метод для форматування відповідей перед збереженням
+  Map<String, dynamic> _formatAnswersForSubmission(Map<String, dynamic> rawAnswers) {
+    final formattedAnswers = <String, dynamic>{};
+
+    for (var question in widget.survey.questions) {
+      final answer = rawAnswers[question.id];
+
+      // Форматуємо відповідь в залежності від типу питання
+      switch (question.type) {
+        case QuestionType.multipleChoice:
+        // Переконуємося що multiple choice завжди повертає список
+          formattedAnswers[question.id] = answer is List ? answer : [answer];
+          break;
+
+        case QuestionType.scale:
+        // Конвертуємо значення шкали в число
+          formattedAnswers[question.id] = (answer as double).round();
+          break;
+
+        case QuestionType.numeric:
+        // Конвертуємо строкове представлення в число
+          formattedAnswers[question.id] = num.tryParse(answer.toString()) ?? answer;
+
+        default:
+        // Для інших типів залишаємо як є
+          formattedAnswers[question.id] = answer;
+      }
+    }
+
+    return formattedAnswers;
+  }
+
+  void _submitForm() {
+    if (_formKey.currentState?.saveAndValidate() ?? false) {
+      // Отримуємо сирі дані з форми
+      final rawAnswers = _formKey.currentState!.value;
+
+      // Форматуємо відповіді
+      final formattedAnswers = _formatAnswersForSubmission(rawAnswers);
+
+      // Створюємо об'єкт відповіді
+      final response = SurveyResponse(
+        surveyId: widget.survey.id,
+        submissionDate: DateTime.now(),
+        answers: formattedAnswers,
+      );
+
+      // Зберігаємо відповідь через провайдер
+      ref.read(surveyResponseProvider.notifier).addResponse(response);
+
+      // Викликаємо колбек onSubmit з відформатованими відповідями
+      widget.onSubmit(formattedAnswers);
+
+      // Показуємо повідомлення про успіх
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Відповіді успішно збережено'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+      // Опціонально: очищаємо форму
+      _formKey.currentState?.reset();
+      setState(() {
+        answers = {};
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +140,7 @@ class _SurveyFormWidgetState extends State<SurveyFormWidget> {
             );
           }),
           const SizedBox(height: 24),
-          ElevatedButton(
+          /*ElevatedButton(
             onPressed: () {
               if (_formKey.currentState?.saveAndValidate() ?? false) {
                 setState(() {
@@ -59,6 +149,10 @@ class _SurveyFormWidgetState extends State<SurveyFormWidget> {
                 widget.onSubmit(answers);
               }
             },
+            child: const Text('Відправити відповіді'),
+          ),*/
+          ElevatedButton(
+            onPressed: _submitForm,
             child: const Text('Відправити відповіді'),
           ),
         ],
