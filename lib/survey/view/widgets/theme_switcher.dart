@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../view_model/theme_provider.dart';
 
 class ThemeSwitcher extends ConsumerWidget {
+  const ThemeSwitcher({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeProvider);

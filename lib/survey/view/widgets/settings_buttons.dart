@@ -22,8 +22,8 @@ class ModalActionButtons extends StatelessWidget {
         SizedBox(width: 10),
         FilledButton(
           onPressed: onSave,
-          child: Text("Зберегти"),
           style: ElevatedButton.styleFrom(elevation: 4),
+          child: Text("Зберегти"),
         ),
       ],
     );

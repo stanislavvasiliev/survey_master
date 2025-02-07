@@ -7,28 +7,29 @@ import '../models/survey_model.dart';
 import './widgets/survey_settings.dart';
 
 class EditorScreen extends ConsumerWidget {
+  const EditorScreen({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedSurvey = ref.watch(selectedSurveyProvider);
-    final TextEditingController _titleController = TextEditingController();
-    final TextEditingController _descController = TextEditingController();
-    final TextEditingController _startDateController = TextEditingController();
-    final TextEditingController _endDateController = TextEditingController();
-    final TextEditingController _facultyController = TextEditingController();
-    final TextEditingController _groupController = TextEditingController();
-    final TextEditingController _isActivatedController =
-      TextEditingController();
+    final TextEditingController titleController = TextEditingController();
+    final TextEditingController descController = TextEditingController();
+    final TextEditingController startDateController = TextEditingController();
+    final TextEditingController endDateController = TextEditingController();
+    final TextEditingController facultyController = TextEditingController();
+    final TextEditingController groupController = TextEditingController();
+    final TextEditingController isActivatedController = TextEditingController();
 
     if (selectedSurvey != null) {
-      _titleController.text = selectedSurvey.title;
-      _descController.text = selectedSurvey.description;
-      _startDateController.text =
+      titleController.text = selectedSurvey.title;
+      descController.text = selectedSurvey.description;
+      startDateController.text =
           selectedSurvey.startDate?.toIso8601String() ?? '';
-      _endDateController.text = selectedSurvey.endDate?.toIso8601String() ?? '';
-      _facultyController.text = selectedSurvey.faculty.join(', ');
-      _groupController.text = selectedSurvey.group.join(', ');
-      _isActivatedController.text =
-        selectedSurvey.isActivated ? 'Активне' : 'Неактивне';
+      endDateController.text = selectedSurvey.endDate?.toIso8601String() ?? '';
+      facultyController.text = selectedSurvey.faculty.join(', ');
+      groupController.text = selectedSurvey.group.join(', ');
+      isActivatedController.text =
+          selectedSurvey.isActivated ? 'Активне' : 'Неактивне';
     }
 
     return Scaffold(
@@ -42,17 +43,17 @@ class EditorScreen extends ConsumerWidget {
                 if (selectedSurvey != null) {
                   final updatedSurvey = Survey(
                     id: selectedSurvey.id,
-                    title: _titleController.text,
-                    description: _descController.text,
+                    title: titleController.text,
+                    description: descController.text,
                     questions: selectedSurvey.questions,
-                    startDate: DateTime.tryParse(_startDateController.text),
-                    endDate: DateTime.tryParse(_endDateController.text),
-                    faculty: _facultyController.text
+                    startDate: DateTime.tryParse(startDateController.text),
+                    endDate: DateTime.tryParse(endDateController.text),
+                    faculty: facultyController.text
                         .split(',')
                         .map((e) => e.trim())
                         .toList(), // Розбиваємо рядок на список
 
-                    group: _groupController.text
+                    group: groupController.text
                         .split(',')
                         .map((e) => e.trim())
                         .toList(), // Розбиваємо рядок на список
@@ -104,11 +105,11 @@ class EditorScreen extends ConsumerWidget {
                       child: SurveyListWidget(
                         onSelectSurvey: (id) {
                           final surveys = ref.read(surveyListProvider);
-                            final selected =
-                            surveys.firstWhere((survey) => survey.id == id);
-                            ref.read(selectedSurveyProvider.notifier).state =
-                                selected;
-                          },
+                          final selected =
+                              surveys.firstWhere((survey) => survey.id == id);
+                          ref.read(selectedSurveyProvider.notifier).state =
+                              selected;
+                        },
                       ),
                     ),
                   ],
@@ -123,87 +124,95 @@ class EditorScreen extends ConsumerWidget {
               child: selectedSurvey == null
                   ? Center(child: Text('Оберіть опитування для редагування'))
                   : Card(
+                      elevation: 1,
+                      margin: EdgeInsets.zero,
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Заголовок
+                            TextField(
+                              controller: titleController,
+                              decoration: InputDecoration(
+                                labelText: 'Назва опитування',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              style: Theme.of(context).textTheme.headlineSmall,
+                            ),
+                            const SizedBox(height: 24),
 
-                elevation: 1,
-                margin: EdgeInsets.zero,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Заголовок
-                      TextField(
-                        controller: _titleController,
-                        decoration: InputDecoration(
-                          labelText: 'Назва опитування',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                            SurveySettings(),
+                            const SizedBox(height: 24),
+                            // Опис
+                            TextField(
+                              controller: descController,
+                              decoration: InputDecoration(
+                                labelText: 'Опис опитування',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              maxLines: 3,
+                            ),
+                            const SizedBox(height: 32),
+
+                            // // Список питань
+                            SurveyFormWidget(
+                              survey: selectedSurvey,
+                              onSubmit: (updatedAnswers) {
+                                final updatedQuestions =
+                                    selectedSurvey.questions.map((q) {
+                                  return Question(
+                                    id: q.id,
+                                    text: updatedAnswers[q.id] ?? q.text,
+                                    type: q.type,
+                                    options: q.options,
+                                    minScale: q.minScale,
+                                    maxScale: q.maxScale,
+                                  );
+                                }).toList();
+
+                                final updatedSurvey = Survey(
+                                  id: selectedSurvey.id,
+                                  title: selectedSurvey.title,
+                                  description: selectedSurvey.description,
+                                  questions: updatedQuestions,
+                                  startDate: DateTime.tryParse(
+                                      startDateController.text),
+                                  endDate:
+                                      DateTime.tryParse(endDateController.text),
+                                  faculty: facultyController.text
+                                      .split(',')
+                                      .map((e) => e.trim())
+                                      .toList(), // Розбиваємо рядок на список
+
+                                  group: groupController.text
+                                      .split(',')
+                                      .map((e) => e.trim())
+                                      .toList(), // Розбиваємо рядок на список
+                                  isActivated: selectedSurvey.isActivated,
+                                );
+                                ref
+                                    .read(surveyListProvider.notifier)
+                                    .updateSurvey(updatedSurvey);
+                                ref
+                                    .read(selectedSurveyProvider.notifier)
+                                    .state = updatedSurvey;
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text('Зміни збережено'),
+                                      duration: Duration(seconds: 1)),
+                                );
+                              },
+                            ),
+                          ],
                         ),
-                        style: Theme.of(context).textTheme.headlineSmall,
                       ),
-                      const SizedBox(height: 24),
-                   
-                      SurveySettings(),
-                      const SizedBox(height: 24),
-                      // Опис
-                      TextField(
-                        controller: _descController,
-                        decoration: InputDecoration(
-                          labelText: 'Опис опитування',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        maxLines: 3,
-                      ),
-                      const SizedBox(height: 32),
-
-                      // // Список питань
-                      SurveyFormWidget(
-                        survey: selectedSurvey,
-                        onSubmit: (updatedAnswers) {
-                          final updatedQuestions = selectedSurvey.questions.map((q) {
-                            return Question(
-                              id: q.id,
-                              text: updatedAnswers[q.id] ?? q.text,
-                              type: q.type,
-                              options: q.options,
-                              minScale: q.minScale,
-                              maxScale: q.maxScale,
-                            );
-                          }).toList();
-
-                          final updatedSurvey = Survey(
-                            id: selectedSurvey.id,
-                            title: selectedSurvey.title,
-                            description: selectedSurvey.description,
-                            questions: updatedQuestions,
-                            startDate: DateTime.tryParse(_startDateController.text),
-                            endDate: DateTime.tryParse(_endDateController.text),
-                            faculty: _facultyController.text
-                                .split(',')
-                                .map((e) => e.trim())
-                                .toList(), // Розбиваємо рядок на список
-
-                            group: _groupController.text
-                                .split(',')
-                                .map((e) => e.trim())
-                                .toList(), // Розбиваємо рядок на список
-                            isActivated: selectedSurvey.isActivated,
-                          );
-                          ref.read(surveyListProvider.notifier).updateSurvey(updatedSurvey);
-                          ref.read(selectedSurveyProvider.notifier).state = updatedSurvey;
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Зміни збережено'), duration: Duration(seconds: 1)),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+                    ),
             )
           ],
         ),
