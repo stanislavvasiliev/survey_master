@@ -8,9 +8,9 @@ class SurveySettingsWidget extends ConsumerWidget {
   final bool showButton;
 
   const SurveySettingsWidget({
-    Key? key,
+    super.key,
     this.showButton = true, // Default value is true to show the button
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -70,6 +70,8 @@ class SurveySettingsWidget extends ConsumerWidget {
 }
 
 class SurveySettings extends ConsumerWidget {
+  const SurveySettings({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SurveySettingsWidget(showButton: true);
@@ -77,6 +79,8 @@ class SurveySettings extends ConsumerWidget {
 }
 
 class SurveySettingsView extends ConsumerWidget {
+  const SurveySettingsView({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SurveySettingsWidget(showButton: false);

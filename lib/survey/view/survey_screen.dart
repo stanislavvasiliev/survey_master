@@ -7,6 +7,8 @@ import '../view/widgets/survey_action_buttons.dart';
 import '../view/widgets/survey_settings.dart';
 
 class SurveyScreen extends ConsumerWidget {
+  const SurveyScreen({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedSurvey = ref.watch(selectedSurveyProvider);

@@ -16,6 +16,8 @@ void main() async {
 }
 
 class MyApp extends ConsumerWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeProvider);
@@ -42,6 +44,8 @@ class MyApp extends ConsumerWidget {
 }
 
 class MainScreen extends ConsumerWidget {
+  const MainScreen({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
