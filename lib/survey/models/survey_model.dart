@@ -6,6 +6,8 @@ enum QuestionType {
   scale,       // Шкала (наприклад, від 1 до 5)
   dropdown,
   numeric,
+  tablesingle,
+  tablemultiple
 }
 
 // Модель питання
@@ -17,6 +19,7 @@ class Question {
       options; // Варіанти відповідей (для single/multiple choice)
   final int? minScale; // Мінімальне значення шкали
   final int? maxScale; // Максимальне значення шкали
+  List<String>? tablequest;
 
   Question({
     required this.id,
@@ -25,6 +28,7 @@ class Question {
     this.options,
     this.minScale,
     this.maxScale,
+    this.tablequest
   }) {
     // Валідація даних (приклад)
     assert(
@@ -49,6 +53,7 @@ class Question {
     List<String>? options,
     int? minScale,
     int? maxScale,
+    List<String>?tablequest,
   }) {
     return Question(
       id: id ?? this.id,
@@ -57,6 +62,7 @@ class Question {
       options: options ?? this.options,
       minScale: minScale ?? this.minScale,
       maxScale: maxScale ?? this.maxScale,
+      tablequest: tablequest ?? this.tablequest,
     );
   }
 }

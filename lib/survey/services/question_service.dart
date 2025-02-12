@@ -28,6 +28,30 @@ class QuestionProvider {
           minScale: minScale,
           maxScale: maxScale,
         );
+      case QuestionType.tablesingle:
+        final tablequest = ["Варіант 1", "Варіант 2"];
+        final options = ["A", "Б"];
+
+        return Question(
+          id: DateTime.now().toString(),
+          text: '',
+          type: type,
+          options: options,
+          tablequest: tablequest,
+        );
+
+      case QuestionType.tablemultiple:
+        final tablequest = ["Варіант 1", "Варіант 2"];
+        final options = ["А", "Б"];
+
+        return Question(
+          id: DateTime.now().toString(),
+          text: '',
+          type: type,
+          options: options,
+          tablequest: tablequest,
+        );
+
       default:
         return Question(
           id: DateTime.now().toString(),
