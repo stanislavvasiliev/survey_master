@@ -5,7 +5,7 @@ import '../../view_model/survey_provider.dart';
 class SurveyListWidget extends ConsumerWidget {
   final Function(String id) onSelectSurvey;
 
-  const SurveyListWidget({required this.onSelectSurvey});
+  const SurveyListWidget({super.key, required this.onSelectSurvey});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

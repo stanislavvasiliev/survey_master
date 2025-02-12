@@ -4,15 +4,18 @@ import '../view_model/survey_provider.dart';
 import '../view/widgets/survey_list_widget.dart';
 import '../models/survey_model.dart';
 import './widgets/survey_settings.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import './widgets/survey_form_widget.dart'; 
+import '../models/question_model.dart';
 
 class EditorScreen extends ConsumerStatefulWidget {
+  const EditorScreen({Key? key}) : super(key: key);
+
   @override
   _EditorScreenState createState() => _EditorScreenState();
-
 }
 
 class _EditorScreenState extends ConsumerState<EditorScreen> {
+
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
   final TextEditingController _startDateController = TextEditingController();
@@ -40,10 +43,11 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
   }
 
   void _updateControllers(Survey selectedSurvey) {
+   
     _titleController.text = selectedSurvey.title;
     _descController.text = selectedSurvey.description;
     _startDateController.text =
-        selectedSurvey.startDate?.toIso8601String() ?? '';
+     selectedSurvey.startDate?.toIso8601String() ?? '';
     _endDateController.text = selectedSurvey.endDate?.toIso8601String() ?? '';
     _facultyController.text = selectedSurvey.faculty.join(', ');
     _groupController.text = selectedSurvey.group.join(', ');
@@ -62,9 +66,11 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
     _isActivatedController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     final selectedSurvey = ref.watch(selectedSurveyProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Редактор опитувань'),
@@ -74,6 +80,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
             child: FilledButton.icon(
               onPressed: () {
                 if (selectedSurvey != null) {
+                  // Оновлення опитування 
                   final updatedSurvey = Survey(
                     id: selectedSurvey.id,
                     title: _titleController.text,
@@ -84,31 +91,27 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                     faculty: _facultyController.text
                         .split(',')
                         .map((e) => e.trim())
-                        .toList(), // Розбиваємо рядок на список
-
+                        .toList(),
                     group: _groupController.text
                         .split(',')
                         .map((e) => e.trim())
-                        .toList(), // Розбиваємо рядок на список
+                        .toList(),
                     isActivated: selectedSurvey.isActivated,
                   );
 
-                  ref
-                      .read(surveyListProvider.notifier)
-                      .updateSurvey(updatedSurvey);
-                  ref
-                      .read(selectedSurveyProvider.notifier)
-                      .update((_) => updatedSurvey);
+                  ref.read(surveyListProvider.notifier).updateSurvey(updatedSurvey);
+                  ref.read(selectedSurveyProvider.notifier).update((_) => updatedSurvey);
 
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text('Зміни збережено'),
-                        duration: Duration(seconds: 1)),
+                    const SnackBar(
+                      content: Text('Зміни збережено'),
+                      duration: Duration(seconds: 1),
+                    ),
                   );
                 }
               },
               icon: const Icon(Icons.save_outlined),
-              label: Text('Зберегти зміни'),
+              label: const Text('Зберегти зміни'),
             ),
           ),
         ],
@@ -118,7 +121,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Ліва панель - список опитувань
+            // Ліва панель — список опитувань 
             Card(
               elevation: 1,
               margin: EdgeInsets.zero,
@@ -138,11 +141,11 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                       child: SurveyListWidget(
                         onSelectSurvey: (id) {
                           final surveys = ref.read(surveyListProvider);
-                            final selected =
-                            surveys.firstWhere((survey) => survey.id == id);
-                            ref.read(selectedSurveyProvider.notifier).state =
-                                selected;
-                          },
+                          final selected = surveys.firstWhere(
+                            (survey) => survey.id == id,
+                          );
+                          ref.read(selectedSurveyProvider.notifier).state = selected;
+                        },
                       ),
                     ),
                   ],
@@ -152,82 +155,82 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
 
             const VerticalDivider(width: 1),
 
-            // Права панель - редагування
+            // Права панель — редагування
             Expanded(
               child: selectedSurvey == null
-                  ? Center(child: Text('Оберіть опитування для редагування'))
+                  ? const Center(child: Text('Оберіть опитування для редагування'))
                   : Card(
+                      elevation: 1,
+                      margin: EdgeInsets.zero,
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Поле для назви (з brun)
+                            TextField(
+                              controller: _titleController,
+                              decoration: InputDecoration(
+                                labelText: 'Назва опитування',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              style: Theme.of(context).textTheme.headlineSmall,
+                            ),
+                            const SizedBox(height: 24),
 
-                elevation: 1,
-                margin: EdgeInsets.zero,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Заголовок
-                      TextField(
-                        controller: _titleController,
-                        decoration: InputDecoration(
-                          labelText: 'Назва опитування',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      const SizedBox(height: 24),
+                           
+                            const SurveySettings(),
+                            const SizedBox(height: 24),
 
-                      SurveySettings(),
-                      const SizedBox(height: 24),
-                      // Опис
-                      TextField(
-                        controller: _descController,
-                        decoration: InputDecoration(
-                          labelText: 'Опис опитування',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        maxLines: 3,
-                      ),
-                      const SizedBox(height: 32),
-
-                            // Список питань
-                            Text('Питання:',
-                                style: Theme.of(context).textTheme.titleLarge),
+                            // Опис
+                            TextField(
+                              controller: _descController,
+                              decoration: InputDecoration(
+                                labelText: 'Опис опитування',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              maxLines: 3,
+                            ),
+                            const SizedBox(height: 32),
+                            Text(
+                              'Питання:',
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
                             const Divider(),
-                            ...selectedSurvey.questions
-                                     .map((question) {
-                                    final controllers = ref.watch(questionControllersProvider);
-                                    final questionController = controllers.putIfAbsent(
-                                      question.id,
-                                          () => TextEditingController(text: question.text),
-                                    );
-                                    return Card(
-                                      margin: const EdgeInsets.symmetric(
-                                          vertical: 8),
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        side: BorderSide(
-                                          color: Theme.of(context).dividerColor,
-                                        ),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(16.0),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
+                            ...selectedSurvey.questions.map((question) {
+                             
+                              final controllers = ref.watch(questionControllersProvider);
+                              final questionController = controllers.putIfAbsent(
+                                question.id,
+                                () => TextEditingController(text: question.text),
+                              );
+
+                              return Card(
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: BorderSide(
+                                    color: Theme.of(context).dividerColor,
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Expanded(
-                                            child:
-                                            TextField(
+                                            child: TextField(
                                               controller: questionController,
-                                              decoration: InputDecoration(
+                                              decoration: const InputDecoration(
                                                 labelText: 'Текст питання',
                                                 border: UnderlineInputBorder(),
                                                 contentPadding: EdgeInsets.zero,
@@ -235,110 +238,148 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .titleMedium,
-                                                    onChanged: (newText) {
-                                                      final updatedQuestions = selectedSurvey.questions.map((q) {
-                                                        if (q.id == question.id) {
-                                                          return q.copyWith(text: newText);
-                                                        }
-                                                        return q;
-                                                      }).toList();
+                                              onChanged: (newText) {
+                                                final updatedQuestions =
+                                                    selectedSurvey.questions.map((q) {
+                                                  if (q.id == question.id) {
+                                                    return q.copyWith(text: newText);
+                                                  }
+                                                  return q;
+                                                }).toList();
 
-                                                      ref.read(selectedSurveyProvider.notifier).state = selectedSurvey.copyWith(
-                                                        questions: updatedQuestions,
-                                                      );
-                                                    },
-                                                  ),
-                                                ),
-                                                //видалення
-                                                IconButton(
-                                                  icon: Icon(Icons.close_rounded, color: Colors.grey),
-                                                  onPressed: () {
-                                                    final updatedQuestions = selectedSurvey.questions
-                                                        .where((q) => q.id != question.id)
-                                                        .toList();
-                                                    final newControllers = Map<String, TextEditingController>.from(controllers);
-                                                    newControllers.remove(question.id);
-                                                    ref.read(questionControllersProvider.notifier).state = newControllers;
+                                                ref
+                                                    .read(selectedSurveyProvider.notifier)
+                                                    .state = selectedSurvey.copyWith(
+                                                  questions: updatedQuestions,
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                          // Кнопка видалити питання
+                                          IconButton(
+                                            icon: const Icon(Icons.close_rounded, color: Colors.grey),
+                                            onPressed: () {
+                                              final updatedQuestions =
+                                                  selectedSurvey.questions
+                                                      .where((q) => q.id != question.id)
+                                                      .toList();
+                                              final newControllers =
+                                                  Map<String, TextEditingController>.from(
+                                                      controllers);
+                                              newControllers.remove(question.id);
+                                              ref
+                                                  .read(questionControllersProvider.notifier)
+                                                  .state = newControllers;
 
-                                                    ref.read(selectedSurveyProvider.notifier).state = selectedSurvey.copyWith(
-                                                      questions: updatedQuestions,
-                                                    );
-                                                  },
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 12),
-                                            Wrap(
-                                              spacing: 8,
-                                              crossAxisAlignment:
-                                                  WrapCrossAlignment.center,
-                                              children: [
-                                                Chip(
-                                                  label: Text(
-                                                    question.type
-                                                        .toString()
-                                                        .split('.')
-                                                        .last,
-                                                    style: TextStyle(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .onSecondaryContainer,
-                                                    ),
-                                                  ),
-                                                  backgroundColor:
-                                                      Theme.of(context)
-                                                          .colorScheme
-                                                          .secondaryContainer,
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
+                                              ref
+                                                  .read(selectedSurveyProvider.notifier)
+                                                  .state = selectedSurvey.copyWith(
+                                                questions: updatedQuestions,
+                                              );
+                                            },
+                                          ),
+                                        ],
                                       ),
-                                    );
-                                  })
-                                .toList(),
-                      // додавання
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.white)
-                        ),
-                        child: DropdownButton<QuestionType>(
-                          value: ref.watch(selectedQuestionTypeProvider),
-                          onChanged: (QuestionType? newValue) {
-                            if (newValue != null) {
-                              ref.read(selectedQuestionTypeProvider.notifier).state = newValue;
-                            }
-                          },
-                          items: QuestionType.values.map((QuestionType type) {
-                            return DropdownMenuItem<QuestionType>(
-                              value: type,
-                              child: Text(type.toString().split('.').last),
-                            );
-                          }).toList(),
-                          icon: const Icon(Icons.arrow_downward_outlined),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          final selectedType = ref.read(selectedQuestionTypeProvider);
-                          final newQuestion = ref.read(questionProvider)
-                              .defaultQuestion(selectedType);
+                                      const SizedBox(height: 12),
+                                      Wrap(
+                                        spacing: 8,
+                                        crossAxisAlignment: WrapCrossAlignment.center,
+                                        children: [
+                                          Chip(
+                                            label: Text(
+                                              question.type.toString().split('.').last,
+                                              style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSecondaryContainer,
+                                              ),
+                                            ),
+                                            backgroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .secondaryContainer,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }).toList(),
 
-                          ref.read(selectedSurveyProvider.notifier).state = selectedSurvey.copyWith(
-                            questions: [...selectedSurvey.questions, newQuestion],
-                          );
-                        },
-                        child: Text('Додати питання'),
-                      ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: Colors.white),
+                              ),
+                              child: DropdownButton<QuestionType>(
+                                value: ref.watch(selectedQuestionTypeProvider),
+                                onChanged: (QuestionType? newValue) {
+                                  if (newValue != null) {
+                                    ref.read(selectedQuestionTypeProvider.notifier).state = newValue;
+                                  }
+                                },
+                                items: QuestionType.values.map((QuestionType type) {
+                                  return DropdownMenuItem<QuestionType>(
+                                    value: type,
+                                    child: Text(type.toString().split('.').last),
+                                  );
+                                }).toList(),
+                                icon: const Icon(Icons.arrow_downward_outlined),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                final selectedType = ref.read(selectedQuestionTypeProvider);
+                                final newQuestion =
+                                    ref.read(questionProvider).defaultQuestion(selectedType);
+
+                                ref.read(selectedSurveyProvider.notifier).state =
+                                    selectedSurvey.copyWith(
+                                  questions: [...selectedSurvey.questions, newQuestion],
+                                );
+                              },
+                              child: const Text('Додати питання'),
+                            ),
+                            const SizedBox(height: 40),
+
+                            Text(
+                              'Альтернативний приклад (dev) через SurveyFormWidget:',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            SurveyFormWidget(
+                              survey: selectedSurvey,
+                              onSubmit: (updatedAnswers) {
+
+                                final updatedQuestions = selectedSurvey.questions.map((q) {
+                                  return q.copyWith(
+                                    text: updatedAnswers[q.id] ?? q.text,
+                                  );
+                                }).toList();
+
+                                final updatedSurvey = selectedSurvey.copyWith(
+                                  questions: updatedQuestions,
+                                  description: _descController.text,
+                                );
+
+                                // Оновлення у провайдерах
+                                ref.read(surveyListProvider.notifier).updateSurvey(updatedSurvey);
+                                ref.read(selectedSurveyProvider.notifier).state = updatedSurvey;
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Зміни (через SurveyFormWidget) збережено'),
+                                    duration: Duration(seconds: 1),
+                                  ),
+                                );
+                              },
+                            ),
                           ],
                         ),
                       ),
                     ),
-            ),
+            )
           ],
         ),
       ),

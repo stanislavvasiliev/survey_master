@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/survey_model.dart';
 import '../services/survey_service.dart';
 import '../services/question_service.dart';
+import '../view/widgets/survey_response_model.dart';
+
 
 final surveyListProvider =
     StateNotifierProvider<SurveyNotifier, List<Survey>>((ref) {
@@ -41,3 +43,8 @@ final selectedSurveyProvider = StateProvider<Survey?>((ref) => null);
 final selectedQuestionTypeProvider = StateProvider<QuestionType>((ref) {return QuestionType.text;});
 final questionControllersProvider = StateProvider<Map<String, TextEditingController>>((ref) => {});
 final questionProvider = Provider((ref) => QuestionProvider());
+final surveyResponseProvider =
+StateNotifierProvider<SurveyResponseNotifier, List<SurveyResponse>>((ref) {
+  return SurveyResponseNotifier();
+});
+

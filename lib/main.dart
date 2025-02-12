@@ -5,12 +5,19 @@ import 'survey/view/editor_screen.dart';
 import 'survey/view/survey_screen.dart';
 import 'survey/view_model/theme_provider.dart';
 import 'theme.dart';
+import './survey/view_model/date_picker_config.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await DatePickerConfig().initializeLocalization();
+
   runApp(ProviderScope(child: MyApp()));
 }
 
 class MyApp extends ConsumerWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeProvider);
@@ -22,12 +29,23 @@ class MyApp extends ConsumerWidget {
       theme: materialTheme.lightMediumContrast(),
       darkTheme: materialTheme.darkMediumContrast(),
       themeMode: themeMode,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('uk', 'UA'), // Українська
+      ],
+      locale: const Locale('uk', 'UA'),
       home: MainScreen(), // Главный экран с глобальным AppBar
     );
   }
 }
 
 class MainScreen extends ConsumerWidget {
+  const MainScreen({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(

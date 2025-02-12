@@ -8,9 +8,9 @@ class FacultyMultiSelectDropdown extends ConsumerWidget {
   final void Function(List<EduInstitution>) onFacultiesSelected;
 
   const FacultyMultiSelectDropdown({
-    Key? key,
+    super.key,
     required this.onFacultiesSelected,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
