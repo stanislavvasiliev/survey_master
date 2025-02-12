@@ -14,10 +14,10 @@ class SurveyResultsOverlay extends ConsumerWidget {
   final VoidCallback onClose;
 
   const SurveyResultsOverlay({
-    Key? key,
+    super.key,
     required this.survey,
     required this.onClose,
-  }) : super(key: key);
+  });
 
   List<PlutoColumn> _createColumns() {
     return [
@@ -149,13 +149,24 @@ class SurveyResultsOverlay extends ConsumerWidget {
                           ),
                           style: PlutoGridStyleConfig(
                             gridBorderColor: Theme.of(context).dividerColor,
-                            gridBackgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                            cellTextStyle: Theme.of(context).textTheme.bodyMedium ?? const TextStyle(),
-                            columnTextStyle: (Theme.of(context).textTheme.titleMedium ?? const TextStyle())
-                                .copyWith(fontWeight: FontWeight.bold),
+                            gridBackgroundColor: Theme.of(context).colorScheme.surface,
+                            cellTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ) ?? const TextStyle(),
+                            columnTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ) ?? const TextStyle(fontWeight: FontWeight.bold),
+                            activatedColor: Theme.of(context).colorScheme.inversePrimary,
+                            activatedBorderColor: Theme.of(context).colorScheme.primary,
+                            rowColor: Theme.of(context).colorScheme.surface,
+
+                            iconColor: Theme.of(context).colorScheme.onSurface,
+                            menuBackgroundColor: Theme.of(context).colorScheme.onPrimary,
                           ),
                         ),
-                      ),
+                      )
+
                     ),
                 ],
               ),
