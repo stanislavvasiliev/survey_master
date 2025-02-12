@@ -147,12 +147,13 @@ class SurveyResultsOverlay extends ConsumerWidget {
                           columnSize: const PlutoGridColumnSizeConfig(
                             autoSizeMode: PlutoAutoSizeMode.scale,
                           ),
-                          style: PlutoGridStyleConfig(
+                                                style: PlutoGridStyleConfig(
                             gridBorderColor: Theme.of(context).dividerColor,
                             gridBackgroundColor: Theme.of(context).colorScheme.surface,
                             cellTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context).colorScheme.onSurface,
                             ) ?? const TextStyle(),
+                            cellColorInEditState: Theme.of(context).colorScheme.surface ,
                             columnTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: Theme.of(context).colorScheme.onSurface,
@@ -160,7 +161,6 @@ class SurveyResultsOverlay extends ConsumerWidget {
                             activatedColor: Theme.of(context).colorScheme.inversePrimary,
                             activatedBorderColor: Theme.of(context).colorScheme.primary,
                             rowColor: Theme.of(context).colorScheme.surface,
-
                             iconColor: Theme.of(context).colorScheme.onSurface,
                             menuBackgroundColor: Theme.of(context).colorScheme.onPrimary,
                           ),
