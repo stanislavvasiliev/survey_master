@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../view_model/survey_provider.dart';
-import 'package:intl/intl.dart';
 import '../../services/date_formatter.dart';
 import '../../models/faculty_model.dart';
 import './faculty_dropdown.dart';
@@ -9,6 +8,7 @@ import './group_dropdown.dart';
 import '../widgets/settings_buttons.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import '../../view_model/date_picker_config.dart';
 
 class ShowModalSettings extends ConsumerStatefulWidget {
   ShowModalSettings({super.key});
@@ -44,7 +44,7 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
         ? (_startDate ?? firstDate)
         : (_endDate ?? (_startDate ?? firstDate));
 
-    final pickedDate = await showDatePicker(
+    final pickedDate = await DatePickerConfig.showLocalizedDatePicker(
       context: context,
       initialDate: initialDate,
       firstDate: firstDate,
@@ -55,7 +55,7 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
       setState(() {
         if (isStartDate) {
           _startDate = pickedDate;
-          _startDateController.text = DateFormat.yMMMd().format(pickedDate);
+          _startDateController.text = customFormatDate(pickedDate);
 
           if (_endDate != null && _endDate!.isBefore(_startDate!)) {
             _endDate = _startDate;
@@ -65,7 +65,7 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
             pickedDate.isAtSameMomentAs(_startDate!) ||
             pickedDate.isAfter(_startDate!)) {
           _endDate = pickedDate;
-          _endDateController.text = DateFormat.yMMMd().format(pickedDate);
+          _endDateController.text = customFormatDate(pickedDate);
         }
       });
     }
