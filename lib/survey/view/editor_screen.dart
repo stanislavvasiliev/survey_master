@@ -5,6 +5,7 @@ import '../view/widgets/survey_list_widget.dart';
 import '../models/survey_model.dart';
 import './widgets/survey_settings.dart';
 import './widgets/survey_form_widget.dart';
+import './widgets/edit_option_dialog.dart';
 //import '../models/question_model.dart';      #???
 
 class EditorScreen extends ConsumerStatefulWidget {
@@ -43,7 +44,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
   }
 
   void _updateControllers(Survey selectedSurvey) {
-   
+
     _titleController.text = selectedSurvey.title;
     _descController.text = selectedSurvey.description;
     _startDateController.text =
@@ -66,7 +67,15 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
     _isActivatedController.dispose();
     super.dispose();
   }
-
+  void _editOptions(Question question) {
+    if (question.type == QuestionType.text || question.type == QuestionType.numeric) {
+      return;
+    }
+    showDialog(
+      context: context,
+      builder: (context) => EditOptionsDialog(question: question, ref: ref),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     final selectedSurvey = ref.watch(selectedSurveyProvider);
@@ -80,7 +89,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
             child: FilledButton.icon(
               onPressed: () {
                 if (selectedSurvey != null) {
-                  // Оновлення опитування 
+                  // Оновлення опитування
                   final updatedSurvey = Survey(
                     id: selectedSurvey.id,
                     title: _titleController.text,
@@ -121,7 +130,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Ліва панель — список опитувань 
+            // Ліва панель — список опитувань
             Card(
               elevation: 1,
               margin: EdgeInsets.zero,
@@ -180,7 +189,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                             ),
                             const SizedBox(height: 24),
 
-                           
+
                             const SurveySettings(),
                             const SizedBox(height: 24),
 
@@ -202,7 +211,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                             ),
                             const Divider(),
                             ...selectedSurvey.questions.map((question) {
-                             
+
                               final controllers = ref.watch(questionControllersProvider);
                               final questionController = controllers.putIfAbsent(
                                 question.id,
@@ -257,7 +266,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                                           ),
                                           // Кнопка видалити питання
                                           IconButton(
-                                            icon: const Icon(Icons.close_rounded, color: Colors.grey),
+                                            icon: const Icon(Icons.close_rounded, color: Colors.redAccent),
                                             onPressed: () {
                                               final updatedQuestions =
                                                   selectedSurvey.questions
@@ -298,7 +307,35 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                                                 .colorScheme
                                                 .secondaryContainer,
                                           ),
+                                          // кнопка редагування відповідей на питання
+                                          if (question.type != QuestionType.text && question.type != QuestionType.numeric)
+                                          IconButton(
+                                            icon: const Icon(Icons.edit, color: Colors.grey),
+                                            onPressed: () {
+                                              _editOptions(question);
+                                            },
+                                          ),
                                         ],
+                                      ),
+                                      const SizedBox(height: 16),
+                                      SurveyFormWidget(
+                                        survey: selectedSurvey.copyWith(questions: [question]),
+                                        onSubmit: (updatedAnswers) {
+                                          final updatedQuestions = selectedSurvey.questions.map((q) {
+                                            if (q.id == question.id) {
+                                              return q.copyWith(text: updatedAnswers[q.id] ?? q.text);
+                                            }
+                                            return q;
+                                          }).toList();
+
+                                          final updatedSurvey = selectedSurvey.copyWith(
+                                            questions: updatedQuestions,
+                                          );
+
+                                          ref.read(surveyListProvider.notifier).updateSurvey(updatedSurvey);
+                                          ref.read(selectedSurveyProvider.notifier).state = updatedSurvey;
+                                        },
+                                        showSubmitButton: false,
                                       ),
                                     ],
                                   ),
@@ -343,38 +380,6 @@ class _EditorScreenState extends ConsumerState<EditorScreen> {
                               child: const Text('Додати питання'),
                             ),
                             const SizedBox(height: 40),
-
-                            Text(
-                              'Альтернативний приклад (dev) через SurveyFormWidget:',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            SurveyFormWidget(
-                              survey: selectedSurvey,
-                              onSubmit: (updatedAnswers) {
-
-                                final updatedQuestions = selectedSurvey.questions.map((q) {
-                                  return q.copyWith(
-                                    text: updatedAnswers[q.id] ?? q.text,
-                                  );
-                                }).toList();
-
-                                final updatedSurvey = selectedSurvey.copyWith(
-                                  questions: updatedQuestions,
-                                  description: _descController.text,
-                                );
-
-                                // Оновлення у провайдерах
-                                ref.read(surveyListProvider.notifier).updateSurvey(updatedSurvey);
-                                ref.read(selectedSurveyProvider.notifier).state = updatedSurvey;
-
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Зміни (через SurveyFormWidget) збережено'),
-                                    duration: Duration(seconds: 1),
-                                  ),
-                                );
-                              },
-                            ),
                           ],
                         ),
                       ),

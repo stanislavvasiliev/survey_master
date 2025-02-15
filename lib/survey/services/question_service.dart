@@ -1,54 +1,55 @@
 import '../models/survey_model.dart';
 class QuestionProvider {
-  Question defaultQuestion(QuestionType type) {
+  Question defaultQuestion(QuestionType type, {List<String>? options,int? minScale, int? maxScale}) {
+
     switch (type) {
       case QuestionType.singleChoice:
       case QuestionType.multipleChoice:
       case QuestionType.dropdown:
-        final options = ["Варіант 1", "Варіант 2"];
-        if (options.isEmpty) {
-          throw ArgumentError('singleChoice, multipleChoice и dropdown options не можуть бути пустими');
+        final Options = options ?? ["А", "Б"];
+        if (Options.isEmpty) {
+          throw ArgumentError(
+              'Для типів singleChoice, multipleChoice и dropdown options не можуть бути пустими');
         }
         return Question(
           id: DateTime.now().toString(),
           text: '',
           type: type,
-          options: options,
+          options: Options,
         );
       case QuestionType.scale:
-        final minScale = 1;
-        final maxScale = 2;
-        if (minScale >= maxScale) {
+        final MinScale = minScale ?? 1;
+        final MaxScale = maxScale ?? 5;
+
+        if (MinScale >= MaxScale) {
           throw ArgumentError('minScale повинен бути меньше maxScale');
         }
         return Question(
           id: DateTime.now().toString(),
           text: '',
           type: type,
-          minScale: minScale,
-          maxScale: maxScale,
+          minScale: MinScale,
+          maxScale: MaxScale,
         );
       case QuestionType.tablesingle:
         final tablequest = ["Варіант 1", "Варіант 2"];
-        final options = ["A", "Б"];
-
+        final TableOptions = options ?? ["А", "Б"];
         return Question(
           id: DateTime.now().toString(),
           text: '',
           type: type,
-          options: options,
+          options: TableOptions,
           tablequest: tablequest,
         );
 
       case QuestionType.tablemultiple:
         final tablequest = ["Варіант 1", "Варіант 2"];
-        final options = ["А", "Б"];
-
+        final TableOptions = options ?? ["А", "Б"];
         return Question(
           id: DateTime.now().toString(),
           text: '',
           type: type,
-          options: options,
+          options: TableOptions,
           tablequest: tablequest,
         );
 

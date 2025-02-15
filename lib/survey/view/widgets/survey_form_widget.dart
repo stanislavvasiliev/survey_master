@@ -9,11 +9,13 @@ import '../../view_model/survey_provider.dart';
 class SurveyFormWidget extends ConsumerStatefulWidget {
   final Survey survey;
   final Function(Map<String, dynamic>) onSubmit;
+  final bool showSubmitButton;
 
   const SurveyFormWidget({
     super.key,
     required this.survey,
     required this.onSubmit,
+    this.showSubmitButton = true,
   });
 
   @override
@@ -122,6 +124,7 @@ class _SurveyFormWidgetState extends ConsumerState<SurveyFormWidget> {
             );
           }),
           const SizedBox(height: 24),
+          if (widget.showSubmitButton)
           ElevatedButton(
             onPressed: _submitForm,
             child: const Text('Відправити відповіді'),
@@ -129,6 +132,21 @@ class _SurveyFormWidgetState extends ConsumerState<SurveyFormWidget> {
         ],
       ),
     );
+  }
+  @override
+  void didUpdateWidget(covariant SurveyFormWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    for (var question in widget.survey.questions) {
+      if (question.type == QuestionType.scale) {
+        final field = _formKey.currentState?.fields[question.id];
+        final currentValue = field?.value as double?;
+        if (currentValue == null ||
+            currentValue < question.minScale! ||
+            currentValue > question.maxScale!) {
+          _formKey.currentState?.patchValue({question.id: question.minScale!.toDouble()});
+        }
+      }
+    }
   }
 
   Widget _buildQuestionWidget(Question question) {
