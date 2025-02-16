@@ -5,10 +5,20 @@ import 'package:intl/intl.dart';
 import '../../services/date_formatter.dart';
 import '../../models/faculty_model.dart';
 import './faculty_dropdown.dart';
-import './group_dropdown.dart';
+// import './group_dropdown.dart';
 import '../widgets/settings_buttons.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import '../../view_model/faculties_provider.dart';
+
+final activeSwitchProvider = StateProvider<bool>((ref) {
+  final selectedSurvey = ref.read(selectedSurveyProvider);
+  return selectedSurvey?.isActivated ?? false;
+});
+
+final selectedFacultiesProvider =
+    StateProvider<List<EduInstitution>>((ref) => []);
+final selectedGroupsProvider = StateProvider<List<String>>((ref) => []);
 
 class ShowModalSettings extends ConsumerStatefulWidget {
   ShowModalSettings({super.key});
@@ -20,12 +30,16 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
   final _startDateController = TextEditingController();
   final _endDateController = TextEditingController();
   DateTime? _startDate, _endDate;
-  List<EduInstitution> _selectedFaculties = [];
-  bool _activeSwitch = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeData();
+    });
+  }
+
+  void _initializeData() {
     final selectedSurvey = ref.read(selectedSurveyProvider);
     if (selectedSurvey != null) {
       _startDate = selectedSurvey.startDate;
@@ -34,8 +48,26 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
           _startDate != null ? customFormatDate(_startDate!) : '';
       _endDateController.text =
           _endDate != null ? customFormatDate(_endDate!) : '';
-      _activeSwitch = selectedSurvey.isActivated;
+
+      final facultiesAsync = ref.read(facultiesProvider);
+      facultiesAsync.whenData((faculties) {
+        final savedFacultyNames = selectedSurvey.faculty;
+        final savedFaculties = faculties
+            .where((faculty) => savedFacultyNames.contains(faculty.name))
+            .toList();
+
+        // Update the state providers with the filtered faculties and groups
+        ref.read(selectedFacultiesProvider.notifier).state = savedFaculties;
+        ref.read(selectedGroupsProvider.notifier).state = selectedSurvey.group;
+      });
     }
+  }
+
+  @override
+  void dispose() {
+    _startDateController.dispose();
+    _endDateController.dispose();
+    super.dispose();
   }
 
   Future<void> _pickDate(BuildContext context, bool isStartDate) async {
@@ -71,49 +103,44 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
     }
   }
 
-  void _handleFacultiesSelected(List<EduInstitution> faculties) {
-    setState(() {
-      _selectedFaculties = faculties;
-    });
-  }
-
-  void _saveDates() {
+  void _saveSettings() {
     final selectedSurvey = ref.read(selectedSurveyProvider);
     if (selectedSurvey == null) return;
 
-    bool hasChanges = false;
-    DateTime? newStartDate = _startDate;
-    DateTime? newEndDate = _endDate;
-    List<String> newFacultiesNames =
-        _selectedFaculties.map((f) => f.name).toList();
-    List<String> newGroupNames =
-        _selectedFaculties.expand((faculty) => faculty.groups).toList();
-    bool newIsActivated = _activeSwitch; // Ensure this is correctly set
+    final newStartDate = _startDate;
+    final newEndDate = _endDate;
+    final newFaculties = ref.read(selectedFacultiesProvider);
+    final newGroups = ref.read(selectedGroupsProvider);
+    final newIsActivated = ref.read(activeSwitchProvider);
 
-    if (newStartDate != selectedSurvey.startDate ||
+    bool hasChanges = newStartDate != selectedSurvey.startDate ||
         newEndDate != selectedSurvey.endDate ||
-        !listEquals(newFacultiesNames, selectedSurvey.faculty) ||
-        !listEquals(newGroupNames, selectedSurvey.group) ||
-        newIsActivated != selectedSurvey.isActivated) {
-      hasChanges = true;
-    }
+        !listEquals(
+            newFaculties.map((f) => f.name).toList(), selectedSurvey.faculty) ||
+        !listEquals(newGroups, selectedSurvey.group) ||
+        newIsActivated != selectedSurvey.isActivated;
+
     if (hasChanges) {
       final updatedSurvey = selectedSurvey.copyWith(
         startDate: newStartDate,
         endDate: newEndDate,
-        faculty: newFacultiesNames,
-        group: newGroupNames,
-        isActivated: newIsActivated, // Updated correctly
+        faculty: newFaculties.map((f) => f.name).toList(),
+        group: newGroups,
+        isActivated: newIsActivated,
       );
       ref.read(surveyListProvider.notifier).updateSurvey(updatedSurvey);
-      ref.read(selectedSurveyProvider.notifier).state =
-          updatedSurvey; // Set new survey state
+      ref.read(selectedSurveyProvider.notifier).state = updatedSurvey;
     }
+
     Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
+    final selectedFaculties = ref.watch(selectedFacultiesProvider);
+    final selectedGroups = ref.watch(selectedGroupsProvider);
+    final activeSwitch = ref.watch(activeSwitchProvider);
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Container(
@@ -176,27 +203,27 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     child: FormBuilderSwitch(
                       name: 'Статус опитування',
-                      initialValue: _activeSwitch,
+                      initialValue: activeSwitch,
                       title: const Text('Опитування активне'),
                       onChanged: (bool? value) {
-                        setState(() {
-                          _activeSwitch = value ?? false;
-                        });
+                        ref.read(activeSwitchProvider.notifier).state =
+                            value ?? false;
                       },
                     ),
                   ),
                   FacultyMultiSelectDropdown(
-                    onFacultiesSelected: _handleFacultiesSelected,
-                  ),
-                  GroupMultiSelectDropdown(
-                    selectedFaculties: _selectedFaculties,
+                    initialSelectedFaculties:
+                        selectedFaculties, // Pass selected faculties here
+                    onFacultiesSelected: (faculties) => ref
+                        .read(selectedFacultiesProvider.notifier)
+                        .state = faculties,
                   ),
                 ],
               ),
             ),
             SizedBox(height: 20),
             ModalActionButtons(
-              onSave: _saveDates,
+              onSave: _saveSettings,
               onCancel: () => Navigator.of(context).pop(),
             ),
           ],

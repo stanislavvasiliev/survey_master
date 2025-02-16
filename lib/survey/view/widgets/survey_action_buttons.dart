@@ -29,8 +29,8 @@ class SurveyActionButtons extends ConsumerWidget {
               ],
               startDate: DateTime.now(),
               endDate: DateTime.now(),
-              faculty: [allFaculties],
-              group: [1],
+              faculty: ['allFaculties'],
+              group: ['1'],
               isActivated: false,
             );
 

@@ -3,7 +3,7 @@ enum QuestionType {
   text, // Відкрите текстове питання
   singleChoice, // Питання з одним варіантом відповіді
   multipleChoice, // Питання з кількома варіантами відповідей
-  scale,       // Шкала (наприклад, від 1 до 5)
+  scale, // Шкала (наприклад, від 1 до 5)
   dropdown,
   numeric,
 }
@@ -51,8 +51,8 @@ class Survey {
   final List<Question> questions; // Список питань
   final DateTime? startDate;
   final DateTime? endDate;
-  final List faculty;
-  final List group;
+  final List<String> faculty;
+  final List<String> group;
   final bool isActivated;
 
   Survey({
@@ -75,8 +75,8 @@ class Survey {
     List<Question>? questions,
     DateTime? startDate,
     DateTime? endDate,
-    List? faculty,
-    List? group,
+    List<String>? faculty,
+    List<String>? group,
     bool? isActivated, // Change to bool instead of required
   }) {
     return Survey(
