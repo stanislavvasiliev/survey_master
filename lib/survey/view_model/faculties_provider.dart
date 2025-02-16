@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/faculty_model.dart';
 
-// Future Provider for loading faculties
 final facultiesProvider = FutureProvider<List<EduInstitution>>((ref) async {
   try {
     return await fetchFaculties();
@@ -10,9 +9,8 @@ final facultiesProvider = FutureProvider<List<EduInstitution>>((ref) async {
   }
 });
 
-// Fetching faculties (Simulated API call)
 Future<List<EduInstitution>> fetchFaculties() async {
-  await Future.delayed(Duration(seconds: 1)); // Simulate delay
+  await Future.delayed(Duration(seconds: 0));
   return [
     EduInstitution(
       name: "Біологічний факультет",
@@ -37,21 +35,10 @@ Future<List<EduInstitution>> fetchFaculties() async {
   ];
 }
 
-// State Provider for selected faculties
 final selectedFacultiesProvider =
     StateProvider<List<EduInstitution>>((ref) => []);
 
-// Derived Provider for filtered groups
-final filteredGroupsProvider = Provider<List<String>>((ref) {
-  final selectedFaculties = ref.watch(selectedFacultiesProvider);
-  final facultiesAsync = ref.watch(facultiesProvider);
-
-  return facultiesAsync.when(
-    data: (faculties) {
-      if (selectedFaculties.isEmpty) return [];
-      return selectedFaculties.expand((faculty) => faculty.groups).toList();
-    },
-    loading: () => [],
-    error: (_, __) => [],
-  );
+final filteredGroupsProvider = FutureProvider<List<String>>((ref) async {
+  final faculties = await fetchFaculties();
+  return faculties.expand((faculty) => faculty.groups).toList();
 });

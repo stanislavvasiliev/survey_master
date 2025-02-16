@@ -212,17 +212,17 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
                         },
                       ),
                       FacultyMultiSelectDropdown(
-                        initialSelectedFaculties:
-                            selectedFaculties, // Pass selected faculties here
+                        initialSelectedFaculties: selectedFaculties,
                         onFacultiesSelected: (faculties) => ref
                             .read(selectedFacultiesProvider.notifier)
                             .state = faculties,
                       ),
                       GroupMultiSelectDropdown(
                         initialSelectedGroups: selectedGroups,
-                        onGroupsSelected: (groups) => ref
-                            .read(selectedGroupsProvider.notifier)
-                            .state = groups,
+                        onGroupsSelected: (groups) {
+                          ref.read(selectedGroupsProvider.notifier).state =
+                              groups;
+                        },
                       ),
                     ],
                   ),
