@@ -3,21 +3,51 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 import '../../models/faculty_model.dart';
 
-class GroupMultiSelectDropdown extends ConsumerWidget {
+class GroupMultiSelectDropdown extends ConsumerStatefulWidget {
   final List<EduInstitution> selectedFaculties;
+  final void Function(List<String>)? onGroupsSelected;
+  final List<String> value; // Початково вибрані елементи
+  final List<String> availableGroups;
 
-  const GroupMultiSelectDropdown({super.key, required this.selectedFaculties});
+  const GroupMultiSelectDropdown({
+    super.key,
+    required this.selectedFaculties,
+    this.onGroupsSelected,
+    required this.value,
+    required this.availableGroups,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (selectedFaculties.isEmpty) {
-      return Container();
-    }
+  ConsumerState<GroupMultiSelectDropdown> createState() =>
+      _GroupMultiSelectDropdownState();
+}
 
-    List<String> availableGroups =
-        selectedFaculties.expand((faculty) => faculty.groups).toSet().toList();
+class _GroupMultiSelectDropdownState
+    extends ConsumerState<GroupMultiSelectDropdown> {
+  late MultiSelectController<String> _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    // Ініціалізуємо контролер без параметра `items`
+    _controller = MultiSelectController<String>();
+
+    // Встановлюємо початковий вибір елементів, якщо вони є
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _controller.selectWhere((item) => widget.value.contains(item));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Формуємо список доступних груп на основі вибраних факультетів
+    List<String> availableGroups = widget.selectedFaculties
+        .expand((faculty) => faculty.groups)
+        .toSet()
+        .toList();
 
     return MultiDropdown<String>(
+      controller: _controller, // Використовуємо контролер
       items: availableGroups
           .map((group) => DropdownItem(label: group, value: group))
           .toList(),
@@ -34,7 +64,7 @@ class GroupMultiSelectDropdown extends ConsumerWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       fieldDecoration: FieldDecoration(
-        hintText: 'Виберіть групи',
+        hintText: 'Групи обраних факультетів',
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
@@ -57,7 +87,7 @@ class GroupMultiSelectDropdown extends ConsumerWidget {
         header: Padding(
           padding: EdgeInsets.all(8),
           child: Text(
-            'Виберіть групу(и)',
+            'Групи обраних факультетів',
             textAlign: TextAlign.start,
             style: TextStyle(
               fontSize: 16,
@@ -80,14 +110,17 @@ class GroupMultiSelectDropdown extends ConsumerWidget {
           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
         ),
       ),
+      onSelectionChange: (selectedItems) {
+        // Викликаємо callback, якщо він є
+        if (widget.onGroupsSelected != null) {
+          widget.onGroupsSelected!(selectedItems);
+        }
+      },
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Please select at least one group';
+          return 'Будь ласка, оберіть хоча б одну групу';
         }
         return null;
-      },
-      onSelectionChange: (selectedItems) {
-        debugPrint("Selected Groups: $selectedItems");
       },
     );
   }
