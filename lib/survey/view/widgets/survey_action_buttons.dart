@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:survey_master/survey/view/widgets/survey_results_overlay.dart';
 import 'dart:html' as html;
 import '../../models/survey_model.dart';
+import '../../view_model/faculties_provider.dart';
 import '../../view_model/survey_provider.dart';
 
 class SurveyActionButtons extends ConsumerWidget {
@@ -11,6 +12,8 @@ class SurveyActionButtons extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedSurvey = ref.watch(selectedSurveyProvider);
+    final allFaculties = ref.read(facultiesProvider).value ?? [];
+    final allGroupNames = allFaculties.expand((f) => f.groups).toSet().toList();
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -30,8 +33,8 @@ class SurveyActionButtons extends ConsumerWidget {
               ],
               startDate: DateTime.now(),
               endDate: DateTime.now(),
-              faculty: [allFaculties],
-              group: [1],
+              faculty: allFaculties.map((f) => f.name).toList(),
+              group: ["all"],
               isActivated: false,
             );
 
