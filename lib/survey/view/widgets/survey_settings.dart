@@ -17,9 +17,12 @@ class SurveySettingsWidget extends ConsumerWidget {
     final selectedSurvey = ref.watch(selectedSurveyProvider);
 
     if (selectedSurvey == null) {
-      return SnackBar(
-        content: Text('Щось пішло не так'),
-      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Щось пішло не так')),
+        );
+      });
+      return const SizedBox(); // Повертаємо порожній віджет, щоб не було помилки
     }
 
     return Column(
@@ -40,9 +43,11 @@ class SurveySettingsWidget extends ConsumerWidget {
                 Text(
                     'Статус Опитування: ${selectedSurvey.isActivated ? 'Активне' : 'Неактивне'}'),
                 Text(
-                    'Дата почтку: ${customFormatDate(selectedSurvey.startDate)}'),
+                    'Дата початку: ${selectedSurvey.startDate != null ? customFormatDate(selectedSurvey.startDate!) : "Не вказано"}'
+                ),
                 Text(
-                    'Дата закінченння: ${customFormatDate(selectedSurvey.endDate)}'),
+                    'Дата завершення: ${selectedSurvey.endDate != null ? customFormatDate(selectedSurvey.endDate!) : "Не вказано"}'
+                ),
                 Text('Факультет(и): ${selectedSurvey.faculty.join(", ")}'),
                 Text('Група(и): ${selectedSurvey.group.join(", ")}'),
               ],
