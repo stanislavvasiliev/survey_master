@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../view_model/faculties_provider.dart';
 import '../../view_model/survey_provider.dart';
 import '../../services/date_formatter.dart';
 import '../../models/faculty_model.dart';
 import './faculty_dropdown.dart';
 import './group_dropdown.dart';
 import '../widgets/settings_buttons.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import '../../view_model/date_picker_config.dart';
 
@@ -22,19 +22,34 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
   DateTime? _startDate, _endDate;
   List<EduInstitution> _selectedFaculties = [];
   bool _activeSwitch = false;
+  List<String> _selectedGroups = []; // Додаємо оголошення змінної тут  add
 
   @override
   void initState() {
     super.initState();
     final selectedSurvey = ref.read(selectedSurveyProvider);
     if (selectedSurvey != null) {
+      // Отримуємо всі факультети
+      final allFaculties = ref.read(facultiesProvider).when(
+        data: (faculties) => faculties,
+        loading: () => [],
+        error: (_, __) => [],
+      );
+
+      // Знаходимо факультети, які вже обрані в опитуванні
+      _selectedFaculties = allFaculties
+          .where((faculty) => selectedSurvey.faculty.contains(faculty.name))
+          .toList()
+          .cast<EduInstitution>();
+
       _startDate = selectedSurvey.startDate;
       _endDate = selectedSurvey.endDate;
       _startDateController.text =
-          _startDate != null ? customFormatDate(_startDate!) : '';
+      _startDate != null ? customFormatDate(_startDate!) : '';
       _endDateController.text =
-          _endDate != null ? customFormatDate(_endDate!) : '';
+      _endDate != null ? customFormatDate(_endDate!) : '';
       _activeSwitch = selectedSurvey.isActivated;
+      _selectedGroups = List<String>.from(selectedSurvey.group); // Ініціалізуємо значення // add
     }
   }
 
@@ -70,45 +85,94 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
       });
     }
   }
-
   void _handleFacultiesSelected(List<EduInstitution> faculties) {
+    final facultiesData = ref.read(facultiesProvider).value ?? [];
+
+    List<String> newSelectedGroups;
+
+    if (faculties.isEmpty) {
+      // Якщо факультети не вибрані, вибираємо всі групи
+      newSelectedGroups = facultiesData.expand((faculty) => faculty.groups).toSet().toList();
+    } else {
+      // Визначаємо доступні групи на основі вибраних факультетів
+      final availableGroups = faculties.expand((faculty) => faculty.groups).toSet().toList();
+
+      // Якщо користувач вже вибрав якісь групи, залишаємо їх (фільтруємо)
+      newSelectedGroups = _selectedGroups.isNotEmpty
+          ? _selectedGroups.where((group) => availableGroups.contains(group)).toList()
+          : availableGroups;
+    }
+
     setState(() {
       _selectedFaculties = faculties;
+      //_selectedGroups = newSelectedGroups;
+      _selectedGroups = faculties.expand((faculty) => faculty.groups).toSet().toList();
     });
+
+    // Оновлення стану у провайдерах
+    ref.read(selectedFacultiesProvider.notifier).state = faculties;
+    // ref.read(selectedGroupsProvider.notifier).state = newSelectedGroups;
+    ref.read(selectedGroupsProvider.notifier).state = _selectedGroups;
   }
+
+
+  void _handleGroupsSelected(List<String> groups) {
+    setState(() {
+      _selectedGroups = groups;
+    });
+    ref.read(selectedGroupsProvider.notifier).state = groups; // add
+  }
+  // add
 
   void _saveDates() {
     final selectedSurvey = ref.read(selectedSurveyProvider);
     if (selectedSurvey == null) return;
 
-    bool hasChanges = false;
-    DateTime? newStartDate = _startDate;
-    DateTime? newEndDate = _endDate;
-    List<String> newFacultiesNames =
-        _selectedFaculties.map((f) => f.name).toList();
-    List<String> newGroupNames =
-        _selectedFaculties.expand((faculty) => faculty.groups).toList();
-    bool newIsActivated = _activeSwitch; // Ensure this is correctly set
+    final allFaculties = ref.read(facultiesProvider).value ?? [];
+    final allGroupNames = allFaculties.expand((f) => f.groups).toSet().toList();
 
-    if (newStartDate != selectedSurvey.startDate ||
-        newEndDate != selectedSurvey.endDate ||
-        !listEquals(newFacultiesNames, selectedSurvey.faculty) ||
-        !listEquals(newGroupNames, selectedSurvey.group) ||
-        newIsActivated != selectedSurvey.isActivated) {
-      hasChanges = true;
-    }
-    if (hasChanges) {
-      final updatedSurvey = selectedSurvey.copyWith(
-        startDate: newStartDate,
-        endDate: newEndDate,
-        faculty: newFacultiesNames,
-        group: newGroupNames,
-        isActivated: newIsActivated, // Updated correctly
-      );
-      ref.read(surveyListProvider.notifier).updateSurvey(updatedSurvey);
-      ref.read(selectedSurveyProvider.notifier).state =
-          updatedSurvey; // Set new survey state
-    }
+    // Перевіряємо, чи користувач ще нічого не вибрав
+    final bool isFacultiesEmpty = _selectedFaculties.isEmpty;
+    final bool isGroupsEmpty = _selectedGroups.isEmpty;
+
+    // Якщо факультети ще не вибрані користувачем, встановлюємо всі факультети
+    final newFacultiesNames = isFacultiesEmpty
+        ? allFaculties.map((f) => f.name).toList()
+        : _selectedFaculties.map((f) => f.name).toList();
+
+    // Якщо групи ще не вибрані користувачем, встановлюємо всі групи
+    final newGroups = isGroupsEmpty
+        ? ["all"] // Фікс: якщо жодної групи не вибрано, записуємо "all"
+        : (_selectedGroups.length == allGroupNames.length ? ["all"] : List<String>.from(_selectedGroups));
+
+    // При активації не змінюємо вибір, якщо користувач уже щось вибрав
+    final updatedFaculties = isFacultiesEmpty ? allFaculties.map((f) => f.name).toList() : newFacultiesNames;
+    final updatedGroups = isGroupsEmpty ? ["all"] : newGroups; // Фікс для коректного запису "all"
+
+    print("Перевірка allFaculties: $allFaculties");
+    print("Збережені факультети: $updatedFaculties");
+    print("Збережені групи: $updatedGroups");
+    print("Фактично збережені групи: ${updatedGroups.contains("all") ? allGroupNames : updatedGroups}");
+
+    final updatedSurvey = selectedSurvey.copyWith(
+      faculty: updatedFaculties,
+      group: updatedGroups,
+      isActivated: _activeSwitch,
+      startDate: _startDate,
+      endDate: _endDate,
+    );
+
+    ref.read(surveyListProvider.notifier).updateSurvey(updatedSurvey);
+    ref.read(selectedSurveyProvider.notifier).state = updatedSurvey;
+
+    // Відображаємо повідомлення про успішне збереження
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Зміни збережено"),
+        duration: Duration(seconds: 2),
+      ),
+    );
+
     Navigator.of(context).pop();
   }
 
@@ -190,6 +254,11 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
                   ),
                   GroupMultiSelectDropdown(
                     selectedFaculties: _selectedFaculties,
+                    // add
+                    key: ValueKey(_selectedFaculties.hashCode), // Додаємо унікальний ключ
+                    availableGroups: ref.watch(facultiesProvider).value?.expand((faculty) => faculty.groups).toSet().toList() ?? [],
+                    onGroupsSelected: _handleGroupsSelected,
+                    value: _selectedGroups, // Додаємо цей параметр
                   ),
                 ],
               ),
