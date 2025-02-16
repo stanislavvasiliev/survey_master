@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import '../../services/date_formatter.dart';
 import '../../models/faculty_model.dart';
 import './faculty_dropdown.dart';
-// import './group_dropdown.dart';
+import './group_dropdown.dart';
 import '../widgets/settings_buttons.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -145,7 +145,7 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Container(
         width: 600,
-        height: 600,
+        height: 700,
         padding: const EdgeInsets.all(20.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -156,7 +156,7 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
             Text("Виберіть дати для опитування"),
             Expanded(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Column(
                     children: [
@@ -199,24 +199,32 @@ class _ShowModalSettingsState extends ConsumerState<ShowModalSettings> {
                       )
                     ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: FormBuilderSwitch(
-                      name: 'Статус опитування',
-                      initialValue: activeSwitch,
-                      title: const Text('Опитування активне'),
-                      onChanged: (bool? value) {
-                        ref.read(activeSwitchProvider.notifier).state =
-                            value ?? false;
-                      },
-                    ),
-                  ),
-                  FacultyMultiSelectDropdown(
-                    initialSelectedFaculties:
-                        selectedFaculties, // Pass selected faculties here
-                    onFacultiesSelected: (faculties) => ref
-                        .read(selectedFacultiesProvider.notifier)
-                        .state = faculties,
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      FormBuilderSwitch(
+                        name: 'Статус опитування',
+                        initialValue: activeSwitch,
+                        title: const Text('Опитування активне'),
+                        onChanged: (bool? value) {
+                          ref.read(activeSwitchProvider.notifier).state =
+                              value ?? false;
+                        },
+                      ),
+                      FacultyMultiSelectDropdown(
+                        initialSelectedFaculties:
+                            selectedFaculties, // Pass selected faculties here
+                        onFacultiesSelected: (faculties) => ref
+                            .read(selectedFacultiesProvider.notifier)
+                            .state = faculties,
+                      ),
+                      GroupMultiSelectDropdown(
+                        initialSelectedGroups: selectedGroups,
+                        onGroupsSelected: (groups) => ref
+                            .read(selectedGroupsProvider.notifier)
+                            .state = groups,
+                      ),
+                    ],
                   ),
                 ],
               ),

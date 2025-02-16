@@ -29,6 +29,11 @@ Future<List<EduInstitution>> fetchFaculties() async {
       groups: ["БІЗ-101", "БІЗ-102", "БІЗ-201", "БІЗ-301"],
       hashId: 'xyz789def1234567ghijklmnopqrstuvabc',
     ),
+    EduInstitution(
+      name: "Факультет Інформаційних технологій",
+      groups: ["З-101", "З-102", "З-201", "З-301"],
+      hashId: '12z789def1234567ghijklmnopqrstuvabc',
+    ),
   ];
 }
 

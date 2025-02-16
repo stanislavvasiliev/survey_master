@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:multi_dropdown/multi_dropdown.dart';
-import '../../view_model/faculties_provider.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 import '../../models/faculty_model.dart';
+import '../../view_model/faculties_provider.dart';
 
-class FacultyMultiSelectDropdown extends StatefulWidget {
+class FacultyMultiSelectDropdown extends ConsumerWidget {
   final List<EduInstitution> initialSelectedFaculties;
   final Function(List<EduInstitution>) onFacultiesSelected;
 
@@ -15,51 +15,49 @@ class FacultyMultiSelectDropdown extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _FacultyMultiSelectDropdownState createState() =>
-      _FacultyMultiSelectDropdownState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final facultiesAsync = ref.watch(facultiesProvider);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
-class _FacultyMultiSelectDropdownState
-    extends State<FacultyMultiSelectDropdown> {
-  late List<EduInstitution> selectedFaculties;
-
-  @override
-  void initState() {
-    super.initState();
-    selectedFaculties = widget.initialSelectedFaculties;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer(
-      builder: (context, ref, _) {
-        final facultiesAsync = ref.watch(facultiesProvider);
-
-        return facultiesAsync.when(
-          data: (faculties) {
-            return DropdownButtonFormField<EduInstitution>(
-              value:
-                  selectedFaculties.isNotEmpty ? selectedFaculties.first : null,
-              items: faculties.map((faculty) {
-                return DropdownMenuItem<EduInstitution>(
-                  value: faculty,
-                  child: Text(faculty.name),
-                );
-              }).toList(),
-              onChanged: (newSelection) {
-                if (newSelection != null) {
-                  setState(() {
-                    selectedFaculties = [newSelection];
-                  });
-                  widget.onFacultiesSelected(selectedFaculties);
-                }
-              },
-            );
-          },
-          loading: () => CircularProgressIndicator(),
-          error: (error, _) => Text('Failed to load faculties'),
+    return facultiesAsync.when(
+      data: (faculties) {
+        return MultiSelectDialogField<EduInstitution>(
+          items: faculties
+              .map((faculty) =>
+                  MultiSelectItem<EduInstitution>(faculty, faculty.name))
+              .toList(),
+          initialValue: initialSelectedFaculties,
+          searchable: true,
+          title: Text(
+            'Обрати факультети',
+          ),
+          buttonText: Text(
+            'Оберіть факультети',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          chipDisplay: MultiSelectChipDisplay(
+            chipColor: colorScheme.primaryContainer,
+            textStyle: TextStyle(color: colorScheme.onPrimaryContainer),
+          ),
+          decoration: BoxDecoration(
+            color: colorScheme.surface,
+            border: Border.all(color: colorScheme.outline),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          dialogWidth: 600,
+          dialogHeight: 500,
+          onConfirm: (values) =>
+              onFacultiesSelected(List<EduInstitution>.from(values)),
         );
       },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, _) => Text(
+        'Failed to load faculties',
+        style: TextStyle(color: Theme.of(context).colorScheme.error),
+      ),
     );
   }
 }
