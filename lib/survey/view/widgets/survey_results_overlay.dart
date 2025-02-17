@@ -71,6 +71,10 @@ class SurveyResultsOverlay extends ConsumerWidget {
         return answer.toString();
       case QuestionType.text:
         return answer.toString();
+      case QuestionType.tablesingle:
+        return answer.toString();
+      case QuestionType.tablemultiple:
+        return answer.toString();
       }
   }
 

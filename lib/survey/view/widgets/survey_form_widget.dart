@@ -9,11 +9,13 @@ import '../../view_model/survey_provider.dart';
 class SurveyFormWidget extends ConsumerStatefulWidget {
   final Survey survey;
   final Function(Map<String, dynamic>) onSubmit;
+  final bool showSubmitButton;
 
   const SurveyFormWidget({
     super.key,
     required this.survey,
     required this.onSubmit,
+    this.showSubmitButton = true,
   });
 
   @override
@@ -122,6 +124,7 @@ class _SurveyFormWidgetState extends ConsumerState<SurveyFormWidget> {
             );
           }),
           const SizedBox(height: 24),
+          if (widget.showSubmitButton)
           ElevatedButton(
             onPressed: _submitForm,
             child: const Text('Відправити відповіді'),
@@ -129,6 +132,21 @@ class _SurveyFormWidgetState extends ConsumerState<SurveyFormWidget> {
         ],
       ),
     );
+  }
+  @override
+  void didUpdateWidget(covariant SurveyFormWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    for (var question in widget.survey.questions) {
+      if (question.type == QuestionType.scale) {
+        final field = _formKey.currentState?.fields[question.id];
+        final currentValue = field?.value as double?;
+        if (currentValue == null ||
+            currentValue < question.minScale! ||
+            currentValue > question.maxScale!) {
+          _formKey.currentState?.patchValue({question.id: question.minScale!.toDouble()});
+        }
+      }
+    }
   }
 
   Widget _buildQuestionWidget(Question question) {
@@ -224,6 +242,128 @@ class _SurveyFormWidgetState extends ConsumerState<SurveyFormWidget> {
               return 'Введіть коректне число';
             }
             return null;
+          },
+        );
+
+
+      case QuestionType.tablesingle:
+        return FormBuilderField<Map<String, String?>>(
+          name: question.id,
+          validator: (value) {
+            return null;
+          },
+          builder: (FormFieldState<Map<String, String?>> field) {
+            final currentValue = field.value ?? <String, String?>{};
+            return Table(
+              border: TableBorder.all(),
+              columnWidths: const {0: IntrinsicColumnWidth()},
+              children: [
+                TableRow(
+                  children: [
+                    Container(padding: const EdgeInsets.all(8), child: const Text('')),
+                    ...question.options!.map((option) =>
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          alignment: Alignment.center,
+                          child: Text(option),
+                        )
+                    ).toList(),
+                  ],
+                ),
+                ...question.tablequest!.map((rowLabel) {
+                  final selected = currentValue[rowLabel];
+                  return TableRow(
+                    children: [
+                      Container(padding: const EdgeInsets.all(8), child: Text(rowLabel)),
+                      ...question.options!.map((option) {
+                        return Container(
+                          padding: const EdgeInsets.all(0),
+                          alignment: Alignment.center,
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Radio<String>(
+                            value: option,
+                            groupValue: selected,
+                            onChanged: (value) {
+                              final newValue = (selected == value) ? null : value;
+                              final updatedMap = Map<String, String?>.from(currentValue);
+                              updatedMap[rowLabel] = newValue;
+                              field.didChange(updatedMap);
+                            },
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ],
+                  );
+                }).toList(),
+              ],
+            );
+          },
+        );
+
+
+      case QuestionType.tablemultiple:
+        return FormBuilderField<Map<String, List<String>?>>(
+          name: question.id,
+          validator: (value) {
+            return null;
+          },
+          builder: (FormFieldState<Map<String, List<String>? >> field) {
+            final currentValue = field.value ?? <String, List<String >> {};
+            return Table(
+              border: TableBorder.all(),
+              columnWidths: const {0: IntrinsicColumnWidth()},
+              children: [
+                TableRow(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      child: const Text(''),
+                    ),
+                    ...question.options!.map((option) => Container(
+                      padding: const EdgeInsets.all(8),
+                      alignment: Alignment.center,
+                      child: Text(option),
+                    )),
+                  ],
+                ),
+                ...question.tablequest!.map((rowLabel) {
+                  final selectedOptions = currentValue[rowLabel] ?? <String>[];
+                  return TableRow(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        child: Text(rowLabel),
+                      ),
+                      ...question.options!.map((option) {
+                        final isSelected = selectedOptions.contains(option);
+                        return Container(
+                          padding: const EdgeInsets.all(0),
+                          alignment: Alignment.center,
+                          child: Checkbox(
+                            value: isSelected,
+                            onChanged: (bool? value) {
+                              final updated = Map<String, List<String>>.from(currentValue);
+                              final rowSelections = List<String>.from(selectedOptions);
+                              if (value == true) {
+                                if (!rowSelections.contains(option)) {
+                                  rowSelections.add(option);
+                                }
+                              } else {
+                                rowSelections.remove(option);
+                              }
+                              updated[rowLabel] = rowSelections;
+                              field.didChange(updated);
+                            },
+                          ),
+                        );
+                      }),
+                    ],
+                  );
+                }),
+              ],
+            );
           },
         );
     }

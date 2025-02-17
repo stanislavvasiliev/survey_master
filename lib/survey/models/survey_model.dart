@@ -6,6 +6,8 @@ enum QuestionType {
   scale,       // Шкала (наприклад, від 1 до 5)
   dropdown,
   numeric,
+  tablesingle, // таблиця з одним варіантом відповіді
+  tablemultiple // таблиця з кількома варіантами відповідей
 }
 
 // Модель питання
@@ -15,8 +17,9 @@ class Question {
   final QuestionType type;
   final List<String>?
       options; // Варіанти відповідей (для single/multiple choice)
-  final int? minScale; // Мінімальне значення шкали
-  final int? maxScale; // Максимальне значення шкали
+  int? minScale; // Мінімальне значення шкали
+  int? maxScale; // Максимальне значення шкали
+  List<String>? tablequest;
 
   Question({
     required this.id,
@@ -25,6 +28,7 @@ class Question {
     this.options,
     this.minScale,
     this.maxScale,
+    this.tablequest
   }) {
     // Валідація даних (приклад)
     assert(
@@ -41,6 +45,25 @@ class Question {
       'Для шкали вкажіть minScale та maxScale',
     );
 
+  }
+  Question copyWith({
+    String? id,
+    String? text,
+    QuestionType? type,
+    List<String>? options,
+    int? minScale,
+    int? maxScale,
+    List<String>?tablequest,
+  }) {
+    return Question(
+      id: id ?? this.id,
+      text: text ?? this.text,
+      type: type ?? this.type,
+      options: options ?? this.options,
+      minScale: minScale ?? this.minScale,
+      maxScale: maxScale ?? this.maxScale,
+      tablequest: tablequest ?? this.tablequest,
+    );
   }
 }
 
