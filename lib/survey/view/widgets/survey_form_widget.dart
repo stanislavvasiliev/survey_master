@@ -279,17 +279,18 @@ class _SurveyFormWidgetState extends ConsumerState<SurveyFormWidget> {
                         return Container(
                           padding: const EdgeInsets.all(0),
                           alignment: Alignment.center,
-                          child: RadioListTile<String>(
-                            contentPadding: EdgeInsets.zero,
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Radio<String>(
                             value: option,
                             groupValue: selected,
-                            title: const SizedBox.shrink(),
                             onChanged: (value) {
                               final newValue = (selected == value) ? null : value;
                               final updatedMap = Map<String, String?>.from(currentValue);
                               updatedMap[rowLabel] = newValue;
                               field.didChange(updatedMap);
                             },
+                            ),
                           ),
                         );
                       }).toList(),
